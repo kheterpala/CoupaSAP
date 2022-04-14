@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -19,10 +20,22 @@ import java.time.temporal.ChronoField;
 
 public class IntUtil {
 	
-	String appConfigPath;
+	Properties props = new java.util.Properties();
+
+	public IntUtil() {
+		this("app.properties");
+	}
 	
 	public IntUtil(String appConfigPath) {
-		this.appConfigPath = appConfigPath;
+		
+		InputStream in = this.getClass().getClassLoader().getResourceAsStream(appConfigPath);
+		
+		try {
+			props.load(in);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public static Date getDate(LocalDate dt) {
@@ -57,6 +70,8 @@ public class IntUtil {
 		String curMonthStr = String.format("%02d", month)+"-"+year;
 		
 		String curMonthRangeStr = getProperty(curMonthStr);
+		System.out.println("Month Str Rnge for:" + curMonthStr + " is:" + curMonthRangeStr);
+		
 		String[] dtRange = getProperty(curMonthStr).split("-");
 		
 		LocalDate startDate = LocalDate.parse(dtRange[0], formatter);
@@ -76,23 +91,19 @@ public class IntUtil {
 		return monthEndLocal;
 	}
 	
+	
+	
+
 	public String getProperty(String name) {
 		String val = null;
 	
-		try {
-			Properties appProps = new Properties();
-			appProps.load(new FileInputStream(appConfigPath));
-			
-			val = appProps.getProperty(name);
-		} catch (Exception ex) {
-			
-		}
+		val = props.getProperty(name);
 		
 		return val;
 	}
 	
 	public static Date getDtFromUTC(String zuluTimeStr) {
-		Instant instant = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(zuluTimeStr));
+		Instant instant = Instant.from(DateTimeFormatter.ISO_ZONED_DATE_TIME.parse(zuluTimeStr));
 		Date dt = Date.from(instant);
 		return dt;
 	}

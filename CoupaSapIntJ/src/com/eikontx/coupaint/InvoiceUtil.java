@@ -40,7 +40,9 @@ public class InvoiceUtil {
 			inv.setInvoiceNumber(csvRecord.get("invoice-number"));
 			inv.setCreatedAt(IntUtil.getDtFromUTC(csvRecord.get("created-at")));
 			inv.setInvoiceDate(IntUtil.getDtFromUTC(csvRecord.get("invoice-date")));
+			System.out.println("Zulut w Offset" +csvRecord.get("delivery-date"));
 			inv.setDeliveryDate(IntUtil.getDtFromUTC(csvRecord.get("delivery-date")));
+			System.out.println("Zulut w Offset" +IntUtil.getDtFromUTC(csvRecord.get("delivery-date")));
 			inv.setSupplierNumber(csvRecord.get("supplier-number"));
 			inv.setInternalNote(csvRecord.get("internal-note"));
 			invoices.add(inv);

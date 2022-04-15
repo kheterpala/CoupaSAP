@@ -22,6 +22,7 @@ public class Invoice {
 	
 	List<InvoiceLine> lines;
 	List<InvoiceCharge> charges;
+	List<JEntry> entries;
 	
 	public Invoice(int id) {
 		this.id = id;
@@ -138,9 +139,9 @@ public class Invoice {
 		
 		Optional<InvoiceLine> result = this.getLines()
 			      .stream().parallel()
-			      .filter(line -> !line.getCompanyCode().equals("")).findFirst();
+			      .filter(line -> !line.getSegment1().equals("")).findFirst();
 
-		if (result.isPresent()) ccode = result.get().getCompanyCode();
+		if (result.isPresent()) ccode = result.get().getSegment1();
 		
 		return ccode;
 	}

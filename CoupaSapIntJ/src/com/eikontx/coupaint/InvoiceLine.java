@@ -1,6 +1,7 @@
 package com.eikontx.coupaint;
 
 import java.util.Date;
+import java.util.List;
 
 public class InvoiceLine {
 	
@@ -14,17 +15,20 @@ public class InvoiceLine {
 	Date createdAt;
 	float total;
 	float accountingTotal;
-	String companyCode;
 	String category; //goods, services
 	String assetId;
-	String glAccount;
+	String segment1;
+	String segment2;
+	String segment3;
+	String segment4;
+	String taxCode;
 	
+	List<JEntry> jEntries;
 	
 	public InvoiceLine(int invoiceId, int invoiceLineId) {
 		this.invoiceId = invoiceId;
 		this.invoiceLineId = invoiceLineId;
 	}
-
 
 	public Invoice getInv() {
 		return inv;
@@ -104,13 +108,6 @@ public class InvoiceLine {
 		this.po = po;
 	}
 	
-	public String getCompanyCode() {
-		return companyCode;
-	}
-	public void setCompanyCode(String companyCode) {
-		this.companyCode = companyCode;
-	}
-	
 	public String getAssetId() {
 		return assetId;
 	}
@@ -127,38 +124,47 @@ public class InvoiceLine {
 	}
 	
 
-	public String getGlAccount() {
-		return glAccount;
+	public String getTaxCode() {
+		return taxCode;
 	}
-	public void setGlAccount(String glAccount) {
-		this.glAccount = glAccount;
+	public void setTaxCode(String taxCode) {
+		this.taxCode = taxCode;
+	}
+
+	public String getSegment1() {
+		return segment1;
+	}
+	public void setSegment1(String segment1) {
+		this.segment1 = segment1;
+	}
+
+	public String getSegment2() {
+		return segment2;
+	}
+	public void setSegment2(String segment2) {
+		this.segment2 = segment2;
+	}
+
+	public String getSegment3() {
+		return segment3;
+	}
+	public void setSegment3(String segment3) {
+		this.segment3 = segment3;
+	}
+
+	public String getSegment4() {
+		return segment4;
+	}
+	public void setSegment4(String segment4) {
+		this.segment4 = segment4;
 	}
 
 
-	public String getPostingKey() {
-		String postingKey = "";
-				
-		if (this.getAssetId().equals("00000")) postingKey = "";
-		else if (! this.getAssetId().equals("")) postingKey = this.getAssetId();
-		else if ((!this.getGlAccount().equals("")) && this.getInv().getDocumentType().equals(Invoice.INV_DEBIT)) postingKey = "40";
-		else if ((!this.getGlAccount().equals("")) && this.getInv().getDocumentType().equals(Invoice.INV_CREDIT)) postingKey = "50";
-		else if (this.getInv().getDocumentType().equals(Invoice.INV_DEBIT)) postingKey = "31";
-		else if (this.getInv().getDocumentType().equals(Invoice.INV_CREDIT)) postingKey = "21";
-		
-		
-		return postingKey;		
+	public List<JEntry> getJEntries() {
+		return jEntries;
 	}
-	 
-	public String getAccount() {
-		String account = "";
-				
-		if (this.getAssetId().equals("00000")) account = "";
-		else if (! this.getAssetId().equals("")) account = this.getAssetId();
-		else if (! this.getGlAccount().equals("")) account = this.getGlAccount();
-		else if (! this.getInv().getDocumentType().equals("")) account = this.getInv().getSupplierNumber();
-		
-		
-		return account;		
+	public void setJEntries(List<JEntry> jEntries) {
+		this.jEntries = jEntries;
 	}
-	
+
 }

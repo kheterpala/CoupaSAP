@@ -72,6 +72,12 @@ public class InvoiceUtil {
 			.collect(Collectors.toList());
 			
 			invoiceLines.forEach(line -> line.setInv((Invoice) inv));
+			for (InvoiceLine line : invoiceLines) {
+				if (line.getAccountingTotal() == 0) continue;
+			    List<JEntry> jEntries = processEntries(line);
+			    line.setJEntries(jEntries);
+			}
+			
 			((Invoice) inv).setLines(invoiceLines);
 			
 			List<InvoiceCharge> invoiceCharges = charges.stream()
@@ -79,6 +85,11 @@ public class InvoiceUtil {
 			.collect(Collectors.toList());
 			
 			invoiceCharges.forEach(charge -> charge.setInv(inv));
+			for (InvoiceCharge charge : invoiceCharges) {
+				if (charge.getAccountingTotal() == 0) continue;
+			    List<JEntry> jEntries = processEntries(charge);
+			    charge.setJEntries(jEntries);
+			}
 			((Invoice) inv).setCharges(invoiceCharges);
 		});
 		
@@ -86,6 +97,125 @@ public class InvoiceUtil {
 		
 		return invoices;
 		
+	}
+	
+	
+	private JEntry getAccountJEntry(InvoiceLine line) {
+		String postingKey = null;
+		String account = null;
+		String invoiceType = line.getInv().getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
+		
+		String supplierNum = line.getInv().getSupplierNumber();
+		account = line.getSegment2();
+		
+		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
+					line.getTotal(), line.getAccountingTotal(),line.getTaxCode(),
+					line.getSegment3(), line.getSegment4(), supplierNum);
+		return jEntry;
+	}
+	
+	private JEntry getVendorJEntry(InvoiceLine line) {
+		String postingKey = null;
+		String account = null;
+		String invoiceType = line.getInv().getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "31";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "21";
+		
+		String supplierNum = line.getInv().getSupplierNumber();
+		account = supplierNum;
+		
+		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
+					line.getTotal(), line.getAccountingTotal(),line.getTaxCode(),
+					line.getSegment3(), line.getSegment4(), supplierNum);
+		return jEntry;
+	}
+	
+	
+	private JEntry getAssetJEntry(InvoiceLine line) {
+		String postingKey = "70";
+		String account = null;
+		
+		String supplierNum = line.getInv().getSupplierNumber();
+		account = line.getAssetId();
+		
+		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
+					line.getTotal(), line.getAccountingTotal(),line.getTaxCode(),
+					line.getSegment3(), line.getSegment4(), supplierNum);
+		return jEntry;
+	}
+	
+	private JEntry getJEntry(String postingKey, String account, String itemText,
+				float txCurAmt, float localCurAmt, String taxCode, String costCenter,
+				String orderNum, String adssignmentNum) {
+		JEntry jEntry = new JEntry();
+		jEntry.setPostingKey(postingKey);
+		jEntry.setAccount(account);
+		jEntry.setItemText(itemText);
+		jEntry.setTxCurAmt(txCurAmt);
+		jEntry.setLocalCurAmt(localCurAmt);
+		jEntry.setTaxCode(taxCode);
+		jEntry.setCostCenter(costCenter);
+		jEntry.setIntOrderNumber(orderNum);
+		jEntry.setAssignmentNumber(adssignmentNum);
+
+		return jEntry;
+	}
+	
+	
+	private JEntry getAccountJEntry(InvoiceCharge charge) {
+		String postingKey = null;
+		String account = null;
+		String invoiceType = charge.getInv().getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
+		
+		String supplierNum = charge.getInv().getSupplierNumber();
+		account = charge.getSegment2();
+		
+		JEntry jEntry = getJEntry(postingKey, account,charge.getLineType(),
+				charge.getTotal(), charge.getAccountingTotal(),charge.getTaxCode(),
+				charge.getSegment3(), charge.getSegment4(), supplierNum);
+		return jEntry;
+	}
+	
+	private JEntry getVendorJEntry(InvoiceCharge charge) {
+		String postingKey = null;
+		String account = null;
+		String invoiceType = charge.getInv().getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "31";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "21";
+		
+		String supplierNum = charge.getInv().getSupplierNumber();
+		account = supplierNum;
+		
+		JEntry jEntry = getJEntry(postingKey, account,charge.getLineType(),
+				charge.getTotal(), charge.getAccountingTotal(),charge.getTaxCode(),
+				charge.getSegment3(), charge.getSegment4(), supplierNum);
+		return jEntry;
+	}
+	
+	private List<JEntry> processEntries(InvoiceLine line) {
+		List<JEntry> jEntries = new ArrayList<JEntry>();
+		
+		jEntries.add(getVendorJEntry(line));
+		jEntries.add(getAccountJEntry(line));
+		if (line.getAssetId() != null && !line.getAssetId().equals("") && !line.getAssetId().equals("00000"))
+			jEntries.add(getAssetJEntry(line));
+		
+		return jEntries;
+	}
+	
+	
+	
+	private List<JEntry> processEntries(InvoiceCharge charge) {
+		List<JEntry> jEntries = new ArrayList<JEntry>();
+		
+		jEntries.add(getVendorJEntry(charge));
+		jEntries.add(getAccountJEntry(charge));
+		
+		return jEntries;
 	}
 	
 	public List<InvoiceLine> getInvoiceLines(String content) throws IOException {
@@ -130,10 +260,13 @@ public class InvoiceUtil {
 			
 			invLine.setPo(csvRecord.get("po-number"));
 			
-			invLine.setCompanyCode(csvRecord.get("segment-1"));
+			invLine.setSegment1(csvRecord.get("segment-1"));
 			invLine.setAssetId(csvRecord.get("segment-2"));
-			invLine.setGlAccount(csvRecord.get("segment-2"));
+			invLine.setSegment2(csvRecord.get("segment-2"));
 			invLine.setCategory(csvRecord.get("category"));
+			//invLine.setTaxCode(csvRecord.get("category"));
+			invLine.setSegment3(csvRecord.get("segment-3"));
+			invLine.setSegment4(csvRecord.get("segment-4"));
 			invLines.add(invLine);
 		}
 		
@@ -173,16 +306,13 @@ public class InvoiceUtil {
 				invCharge.setAccountingTotal(acTotal);
 			}
 			
+			invCharge.setSegment1(csvRecord.get("segment-1"));
+			invCharge.setSegment2(csvRecord.get("segment-2"));
+			invCharge.setSegment3(csvRecord.get("segment-3"));
+			invCharge.setSegment4(csvRecord.get("segment-4"));
 			
-			if (!csvRecord.get("accounting-total").equals("")) {
-				Float acTotal = Float.parseFloat(csvRecord.get("accounting-total"));
-				invCharge.setAccountingTotal(acTotal);
-			}
-			invCharge.setAccountingTotalCurrency(csvRecord.get("accounting-total-currency"));
-			
-			
-			invCharge.setCompanyCode(csvRecord.get("segment-1"));
-			invCharge.setGlAccount(csvRecord.get("segment-2"));
+			invCharge.setTaxCode(csvRecord.get("tax-code"));
+
 			
 			invCharges.add(invCharge);
 		}

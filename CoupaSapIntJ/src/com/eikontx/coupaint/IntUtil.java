@@ -70,7 +70,7 @@ public class IntUtil {
 		String curMonthStr = String.format("%02d", month)+"-"+year;
 		
 		String curMonthRangeStr = getProperty(curMonthStr);
-		System.out.println("Month Str Rnge for:" + curMonthStr + " is:" + curMonthRangeStr);
+		//System.out.println("Month Str Rnge for:" + curMonthStr + " is:" + curMonthRangeStr);
 		
 		String[] dtRange = getProperty(curMonthStr).split("-");
 		
@@ -86,7 +86,7 @@ public class IntUtil {
 		monthEndLocal = LocalDate.of(year, month, 1);
 		monthEndLocal = monthEndLocal.plusDays(-1);
 				
-		System.out.println("Month Str" + curMonthStr + " Date" + monthEndLocal);
+		//System.out.println("Month Str" + curMonthStr + " Date" + monthEndLocal);
 		
 		return monthEndLocal;
 	}

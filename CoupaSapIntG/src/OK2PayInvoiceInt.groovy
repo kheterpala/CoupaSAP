@@ -3,7 +3,7 @@ import com.eikontx.coupaint.*
 class OK2PayInvoiceInt {
 		
 	public static void main(String[] args) {
-		String filepath = "/Users/kheterpala/Documents/SAP/Ok2Pay File.csv";
+		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220415_181601Z.csv";
 		
 		try {
 			File f = new File(filepath);
@@ -35,8 +35,6 @@ class OK2PayInvoiceInt {
 
 	
 		InvoiceUtil iu = new InvoiceUtil();
-		IntUtil intUtil = new IntUtil();
-		
 		
 		//Invoices with all content
 		List<Invoice> invoices = iu.getInvoices(csvContent);
@@ -57,10 +55,10 @@ class OK2PayInvoiceInt {
 		int invoiceCount = 1;
 		invoices.each { inv ->
 			
-			Date postingDate = intUtil.getPostingDate();
+			Date postingDate = IntUtil.getPostingDate();
 			buffer.append("Count:" +invoiceCount + delim + "Invoice Id:" + inv.getId() + delim + 
 				"company Code:" + inv.getFirstCompanyCode() + delim + "Doc Type:" + inv.getJEType() +  delim + 
-				"CreatedAt:" + intUtil.getDtStr(inv.getCreatedAt()) + delim + "Posting Date:" + intUtil.getDtStr(postingDate) + delim +
+				"CreatedAt:" + IntUtil.getSAPDtStr(inv.getCreatedAt()) + delim + "Posting Date:" + IntUtil.getSAPDtStr(postingDate) + delim +
 				 "Fiscal Period:" + "" + delim + 
 				 "Supplier #:" + inv.getSupplierNumber() + delim + "Note:" + inv.getInternalNote() + delim +
 				 "PO:" + inv.getFirstPO() + delim + "Currency "  + inv.getCurrency() + delim + 

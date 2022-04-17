@@ -23,7 +23,7 @@ public class InvoiceUtil {
 		
 		BufferedReader reader = new BufferedReader(new StringReader(csvContent));
 		String invoiceContent = IntUtil.splitData(reader,"id","created-at",0,"Header");
-		System.out.println(invoiceContent);
+		//System.out.println(invoiceContent);
 		
 		Reader invReader = new StringReader(invoiceContent);
 		CSVParser csvParser = new CSVParser(invReader, CSVFormat.DEFAULT
@@ -43,6 +43,7 @@ public class InvoiceUtil {
 			inv.setDeliveryDate(IntUtil.getDtFromUTC(csvRecord.get("delivery-date")));
 			inv.setSupplierNumber(csvRecord.get("supplier-number"));
 			inv.setInternalNote(csvRecord.get("internal-note"));
+			if (!csvRecord.get("line-level-taxation").equals("")) inv.setTaxLineTaxation(Boolean.parseBoolean(csvRecord.get("line-level-taxation")));
 			invoices.add(inv);
 		}
 		reader.close();
@@ -72,6 +73,10 @@ public class InvoiceUtil {
 			invoiceLines.forEach(line -> line.setInv((Invoice) inv));
 			for (InvoiceLine line : invoiceLines) {
 				if (line.getAccountingTotal() == 0) continue;
+				if (inv.isTaxLineTaxation()) {
+					System.out.println("AC Total:" + line.getAccountingTotal() + " Tax:" + line.getTaxAmount());
+					//line.setAccountingTotal(line.getAccountingTotal() + line.getTaxAmount());
+				}
 			    List<JEntry> jEntries = processEntries(line);
 			    line.setJEntries(jEntries);
 			}

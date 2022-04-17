@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Invoice {
 	static String INV_DEBIT = "Invoice";
-	static String INV_CREDIT = "Credit Memo";
+	static String INV_CREDIT = "Credit Note";
 	
 	int id;
 	Date createdAt;
@@ -18,11 +18,10 @@ public class Invoice {
 	String supplierNumber;
 	String internalNote;
 	String currency;
-	
+	boolean taxLineTaxation;
 	
 	List<InvoiceLine> lines;
 	List<InvoiceCharge> charges;
-	List<JEntry> entries;
 	
 	public Invoice(int id) {
 		this.id = id;
@@ -112,7 +111,13 @@ public class Invoice {
 		this.internalNote = internalNote;
 	}
 	
-	
+	public boolean isTaxLineTaxation() {
+		return taxLineTaxation;
+	}
+	public void setTaxLineTaxation(boolean taxLineTaxation) {
+		this.taxLineTaxation = taxLineTaxation;
+	}
+
 	public String getJEType() {
 		String type = "";
 		

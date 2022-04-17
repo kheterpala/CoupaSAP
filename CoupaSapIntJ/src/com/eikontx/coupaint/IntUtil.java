@@ -20,15 +20,18 @@ import java.time.temporal.ChronoField;
 
 public class IntUtil {
 	
-	Properties props = new java.util.Properties();
-
-	public IntUtil() {
-		this("app.properties");
+	static Properties props = new java.util.Properties();
+	
+	static {
+		loadProps("app.properties");
 	}
 	
-	public IntUtil(String appConfigPath) {
+	public IntUtil() {
+	}
+	
+	private static void loadProps(String appConfigPath) {
 		
-		InputStream in = this.getClass().getClassLoader().getResourceAsStream(appConfigPath);
+		InputStream in = IntUtil.class.getClassLoader().getResourceAsStream(appConfigPath);
 		
 		try {
 			props.load(in);
@@ -48,7 +51,7 @@ public class IntUtil {
 			      .toLocalDate();
 	}
 	
-	public Date getPostingDate() {
+	public static Date getPostingDate() {
 		LocalDate today = LocalDate.now();
 		LocalDate postingDate = getFiscalMonthEnd();
 		
@@ -57,7 +60,7 @@ public class IntUtil {
 		return getDate(postingDate);
 	}
 	
-	public LocalDate getFiscalMonthEnd() {
+	public static LocalDate getFiscalMonthEnd() {
 		
 		ZoneId timeZone = ZoneId.systemDefault();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
@@ -92,9 +95,7 @@ public class IntUtil {
 	}
 	
 	
-	
-
-	public String getProperty(String name) {
+	public static String getProperty(String name) {
 		String val = null;
 	
 		val = props.getProperty(name);
@@ -109,8 +110,8 @@ public class IntUtil {
 	}
 	
 	
-	public String getDtStr(Date dt) {
-		String dtFormat = getProperty("dtformat");
+	public static String getSAPDtStr(Date dt) {
+		String dtFormat = getProperty("sap_dtformat");
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dtFormat);
 		
 		return formatter.format(getLocalDate(dt));
@@ -118,10 +119,13 @@ public class IntUtil {
 	}
 	
 	public static List<String> getTokens(String str) {
+		String inputDelim = getProperty("coupa_delim");
 		List<String> tokens = new ArrayList<String>();
-		StringTokenizer tokenizer = new StringTokenizer(str, ",");
+		StringTokenizer tokenizer = new StringTokenizer(str, inputDelim);
 		while (tokenizer.hasMoreElements()) {
-			tokens.add(tokenizer.nextToken().trim());
+			String token = tokenizer.nextToken().trim();
+			token = token.replaceAll("^\"|\"$", "");
+			tokens.add(token);
 		}
 		return tokens;
 	}
@@ -145,7 +149,6 @@ public class IntUtil {
 		boolean hdrFound = false;
 		//Get header & contents
 		while ((line = br.readLine()) != null) {
-			
 			List<String> tokens = new ArrayList<>();
 			tokens = getTokens(line);
 			
@@ -153,6 +156,7 @@ public class IntUtil {
 					tokens.contains(hdrCol1) && tokens.contains(hdrCol2) &&
 					!hdrFound) {
 				sb.append(line);
+				//System.out.println("Appending line" + line);
 				hdrFound= true;
 			}
 			

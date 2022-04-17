@@ -251,7 +251,7 @@ public class InvoiceUtil {
 				invLine.setPrice(price);
 			}
 			if (!csvRecord.get("quantity").equals("")) {
-				Integer quantity = Integer.parseInt(csvRecord.get("quantity"));
+				Float quantity = Float.parseFloat(csvRecord.get("quantity"));
 				invLine.setQuantity(quantity);
 			}
 			invLine.setDescription(csvRecord.get("description"));
@@ -264,8 +264,7 @@ public class InvoiceUtil {
 				invLine.setTaxAmount(tax);
 			}
 			
-			//String assetId = csvRecord.get("asset-id").equals("00000") ? "" : csvRecord.get("asset-id");
-			String assetId = csvRecord.get("segment-2").equals("00000") ? "" : csvRecord.get("segment-2");
+			String assetId = csvRecord.get("asset_id external_ref_num").equals("00000") ? "" : csvRecord.get("asset_id external_ref_num");
 			invLine.setAssetId(assetId);
 			
 			invLine.setSegment1(csvRecord.get("segment-1"));

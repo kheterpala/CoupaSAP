@@ -11,7 +11,7 @@ public class InvoiceLine {
 	String description;
 	String po;
 	float price;
-	int quantity;
+	float quantity;
 	Date createdAt;
 	float total;
 	float accountingTotal;
@@ -71,10 +71,10 @@ public class InvoiceLine {
 	}
 
 
-	public int getQuantity() {
+	public float getQuantity() {
 		return quantity;
 	}
-	public void setQuantity(int quantity) {
+	public void setQuantity(float quantity) {
 		this.quantity = quantity;
 	}
 

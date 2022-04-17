@@ -18,6 +18,7 @@ public class InvoiceCharge {
 	String segment3;
 	String segment4;
 	String taxCode;
+	float taxAmount;
 	
 	List<JEntry> jEntries;
 	
@@ -122,9 +123,16 @@ public class InvoiceCharge {
 	public String getTaxCode() {
 		return taxCode;
 	}
-
 	public void setTaxCode(String taxCode) {
 		this.taxCode = taxCode;
+	}
+
+	
+	public float getTaxAmount() {
+		return taxAmount;
+	}
+	public void setTaxAmount(float taxAmount) {
+		this.taxAmount = taxAmount;
 	}
 
 	public List<JEntry> getJEntries() {

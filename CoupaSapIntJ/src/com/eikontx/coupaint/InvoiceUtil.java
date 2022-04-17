@@ -40,9 +40,7 @@ public class InvoiceUtil {
 			inv.setInvoiceNumber(csvRecord.get("invoice-number"));
 			inv.setCreatedAt(IntUtil.getDtFromUTC(csvRecord.get("created-at")));
 			inv.setInvoiceDate(IntUtil.getDtFromUTC(csvRecord.get("invoice-date")));
-			System.out.println("Zulut w Offset" +csvRecord.get("delivery-date"));
 			inv.setDeliveryDate(IntUtil.getDtFromUTC(csvRecord.get("delivery-date")));
-			System.out.println("Zulut w Offset" +IntUtil.getDtFromUTC(csvRecord.get("delivery-date")));
 			inv.setSupplierNumber(csvRecord.get("supplier-number"));
 			inv.setInternalNote(csvRecord.get("internal-note"));
 			invoices.add(inv);
@@ -201,7 +199,7 @@ public class InvoiceUtil {
 		
 		jEntries.add(getVendorJEntry(line));
 		jEntries.add(getAccountJEntry(line));
-		if (line.getAssetId() != null && !line.getAssetId().equals("") && !line.getAssetId().equals("00000"))
+		if (!line.getAssetId().equals(""))
 			jEntries.add(getAssetJEntry(line));
 		
 		return jEntries;
@@ -257,14 +255,21 @@ public class InvoiceUtil {
 				invLine.setQuantity(quantity);
 			}
 			invLine.setDescription(csvRecord.get("description"));
-			
 			invLine.setPo(csvRecord.get("po-number"));
 			
-			invLine.setSegment1(csvRecord.get("segment-1"));
-			invLine.setAssetId(csvRecord.get("segment-2"));
-			invLine.setSegment2(csvRecord.get("segment-2"));
 			invLine.setCategory(csvRecord.get("category"));
-			//invLine.setTaxCode(csvRecord.get("category"));
+			invLine.setTaxCode(csvRecord.get("tax-code"));
+			if (!csvRecord.get("tax-amount").equals("")) {
+				Float tax = Float.parseFloat(csvRecord.get("tax-amount"));
+				invLine.setTaxAmount(tax);
+			}
+			
+			//String assetId = csvRecord.get("asset-id").equals("00000") ? "" : csvRecord.get("asset-id");
+			String assetId = csvRecord.get("segment-2").equals("00000") ? "" : csvRecord.get("segment-2");
+			invLine.setAssetId(assetId);
+			
+			invLine.setSegment1(csvRecord.get("segment-1"));
+			invLine.setSegment2(csvRecord.get("segment-2"));
 			invLine.setSegment3(csvRecord.get("segment-3"));
 			invLine.setSegment4(csvRecord.get("segment-4"));
 			invLines.add(invLine);
@@ -312,7 +317,10 @@ public class InvoiceUtil {
 			invCharge.setSegment4(csvRecord.get("segment-4"));
 			
 			invCharge.setTaxCode(csvRecord.get("tax-code"));
-
+			if (!csvRecord.get("tax-amount").equals("")) {
+				Float tax = Float.parseFloat(csvRecord.get("tax-amount"));
+				invCharge.setTaxAmount(tax);
+			}
 			
 			invCharges.add(invCharge);
 		}

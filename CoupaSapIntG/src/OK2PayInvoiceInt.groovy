@@ -26,12 +26,14 @@ class OK2PayInvoiceInt {
 	public String processData(String csvContent) {
 	//Body
 	
-		String delim = "|";
+		
 		String[] OUT_INV_HDR = ["#","XREF1","BUKRS","BLART","BLDAT","BUDAT","MONAT","BKTXT",
 				"WAERS","XBLNR"];
 
 		String[] OUT_INVLINE_HDR = ["NEWBS","NEWKO","NEWBW","SGTXT","WRBTR","DMBTR","MWSKZ",
 			"TXJCD","KOSTL","AUFNR","ZUONR"];
+		
+		String delim = IntUtil.getProperty("sap_delim");
 
 	
 		InvoiceUtil iu = new InvoiceUtil();

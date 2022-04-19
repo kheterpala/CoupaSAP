@@ -57,14 +57,15 @@ class OK2PayInvoiceInt {
 		int invoiceCount = 1;
 		invoices.each { inv ->
 			
-			Date postingDate = IntUtil.getPostingDate();
+			Date postingDate = IntUtil.getPostingDate(inv.getCreatedAt())
+			
 			buffer.append("Count:" +invoiceCount + delim + "Invoice Id:" + inv.getId() + delim + 
 				"company Code:" + inv.getFirstCompanyCode() + delim + "Doc Type:" + inv.getJEType() +  delim + 
 				"CreatedAt:" + IntUtil.getSAPDtStr(inv.getCreatedAt()) + delim + "Posting Date:" + IntUtil.getSAPDtStr(postingDate) + delim +
 				 "Fiscal Period:" + "" + delim + 
 				 "Supplier #:" + inv.getSupplierNumber() + delim + "Note:" + inv.getInternalNote() + delim +
 				 "PO:" + inv.getFirstPO() + delim + "Currency "  + inv.getCurrency() + delim + 
-				 "Number:" + inv.getInvoiceNumber() + delim);
+				 "Inv Number:" + inv.getInvoiceNumber() + delim);
 			List<InvoiceLine> invLines = inv.getLines();
 			List<InvoiceCharge> invCharges = inv.getCharges();
 			invoiceCount++;
@@ -77,7 +78,7 @@ class OK2PayInvoiceInt {
 						buffer.append("Posting Key:" + jEntry.getPostingKey() + delim + "Account:" + jEntry.getAccount() + delim + 
 							jEntry.getTxType() + delim + "Line Desc:" + IntUtil.escapeSpecialCharacters(jEntry.getItemText()) + delim + 
 							"Total:" + jEntry.getTxCurAmt() + delim + "AC Total:"  + jEntry.getLocalCurAmt() + delim + 
-							"TAX J:" + jEntry.getTaxJurisdiction() + delim + "CC:" + jEntry.getCostCenter() + delim +
+							"TAX J:" + jEntry.getTaxJurisdiction() + delim + "Tax:" + invLine.getTaxAmount() + delim + "CC:" + jEntry.getCostCenter() + delim +
 							"Ord#:" + jEntry.getIntOrderNumber() + delim + "Ass#:" + jEntry.getAssignmentNumber());
 						buffer.append(System.lineSeparator());
 						entryCount++;

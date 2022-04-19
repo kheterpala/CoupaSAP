@@ -1,8 +1,10 @@
 package com.eikontx.coupaint;
 
+import java.util.Date;
+
 public class TestInt {
 	public static void main(String[] args) {
-		System.out.println("This is a test of Util" + IntUtil.getDtFromUTC("2022-03-01T14:50:34Z"));
-		System.out.println("This is a test of Util" + IntUtil.getDtFromUTC("2022-03-01T06:49:42-08:00"));
+		Date dt = IntUtil.getDtFromUTC("2022-02-10T14:50:34Z");
+		System.out.println("This is a test of Util posting" + IntUtil.getPostingDate(dt));
 	}
 }

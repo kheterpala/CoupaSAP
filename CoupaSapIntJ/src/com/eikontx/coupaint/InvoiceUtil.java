@@ -96,8 +96,6 @@ public class InvoiceUtil {
 			((Invoice) inv).setCharges(invoiceCharges);
 		});
 		
-		
-		
 		return invoices;
 		
 	}

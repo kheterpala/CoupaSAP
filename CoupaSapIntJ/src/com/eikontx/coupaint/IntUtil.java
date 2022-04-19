@@ -51,24 +51,27 @@ public class IntUtil {
 			      .toLocalDate();
 	}
 	
-	public static Date getPostingDate() {
-		LocalDate today = LocalDate.now();
-		LocalDate postingDate = getFiscalMonthEnd();
+	
+	public static Date getPostingDate(Date txDate) {
+		LocalDate runDate = LocalDate.now();
+		LocalDate postingDate = runDate;
+		LocalDate monthEndDate = getFiscalMonthEnd(runDate);		
+		LocalDate txDateLocal = getLocalDate(txDate);
 		
-		if (today.isBefore(postingDate)) postingDate = today;
+		if (postingDate.isAfter(monthEndDate) && !txDateLocal.isAfter(monthEndDate)) postingDate = monthEndDate;
 		
+
 		return getDate(postingDate);
 	}
 	
-	public static LocalDate getFiscalMonthEnd() {
+	
+	private static LocalDate getFiscalMonthEnd(LocalDate runDateLocal) {
 		
 		ZoneId timeZone = ZoneId.systemDefault();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-		
-		LocalDate today = LocalDate.now();
-		int month = today.get(ChronoField.MONTH_OF_YEAR);
-		int year = today.get(ChronoField.YEAR);
+		int month = runDateLocal.get(ChronoField.MONTH_OF_YEAR);
+		int year = runDateLocal.get(ChronoField.YEAR);
 		
 		String curMonthStr = String.format("%02d", month)+"-"+year;
 		
@@ -80,10 +83,11 @@ public class IntUtil {
 		LocalDate startDate = LocalDate.parse(dtRange[0], formatter);
 		LocalDate endDate = LocalDate.parse(dtRange[1], formatter);
 		
-		LocalDate monthEndLocal = today;
-		if (!today.isBefore(startDate)) {
-			monthEndLocal = monthEndLocal.plusMonths(1);
-		}
+		LocalDate monthEndLocal = runDateLocal;
+		if (!runDateLocal.isBefore(startDate))
+			monthEndLocal = monthEndLocal.plusMonths(1); 
+		
+		
 		month = monthEndLocal.get(ChronoField.MONTH_OF_YEAR);
 		year = monthEndLocal.get(ChronoField.YEAR);
 		monthEndLocal = LocalDate.of(year, month, 1);
@@ -160,7 +164,7 @@ public class IntUtil {
 				hdrFound= true;
 			}
 			
-			if (tokens.get(recTypeIdx).equals(recType)) {
+			if (hdrFound && tokens.get(recTypeIdx).equals(recType)) {
 				sb.append(System.lineSeparator());
 				sb.append(line);
 			}

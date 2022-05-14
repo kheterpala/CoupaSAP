@@ -115,6 +115,7 @@ public class InvoiceUtil {
 		}
 		totTaxAmt = (float) Math.round(totTaxAmt * 100) / 100;
 		float adjTaxAmt = inv.getTotalTax() - totTaxAmt;
+		boolean adjTaxApplied = false;
 		if (lines.size() > 1 && adjTaxAmt != 0) {
 			Optional<InvoiceLine> result = lines
 				      .stream().parallel()
@@ -127,9 +128,10 @@ public class InvoiceUtil {
 				taxAmt = (float) Math.round(taxAmt * 100) / 100;
 				lastLine.setTaxAmount(taxAmt);
 				System.out.println("Line Adjusted by:" + adjTaxAmt + " to:" + taxAmt);
+				adjTaxApplied = true;
 			}
 		}
-		else if (charges.size() > 1 && adjTaxAmt != 0) {
+		if (charges.size() > 1 && adjTaxAmt != 0 && !adjTaxApplied) {
 			
 			Optional<InvoiceCharge> result = charges
 				      .stream().parallel()

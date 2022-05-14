@@ -4,7 +4,7 @@ public class JEntry {
 	
 	String postingKey;
 	String account;
-	String txType = "100";
+	String txType = "";
 	String itemText;
 	float txCurAmt;
 	float localCurAmt;

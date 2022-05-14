@@ -2,6 +2,7 @@ package com.eikontx.coupaint;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Invoice {
@@ -16,9 +17,15 @@ public class Invoice {
 	Date deliveryDate;	
 	String invoiceNumber;
 	String supplierNumber;
+	String supplierName;
 	String internalNote;
+	float total;
+	float accountingTotal;
 	String currency;
 	boolean taxLineTaxation;
+	float totalTax;
+	String taxCode;
+	List<JEntry> jEntries = new ArrayList<JEntry>();;
 	
 	List<InvoiceLine> lines;
 	List<InvoiceCharge> charges;
@@ -103,6 +110,28 @@ public class Invoice {
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
+	
+	
+	public float getTotal() {
+		return total;
+	}
+	public void setTotal(float total) {
+		this.total = total;
+	}
+
+	public float getAccountingTotal() {
+		return accountingTotal;
+	}
+	public void setAccountingTotal(float accountingTotal) {
+		this.accountingTotal = accountingTotal;
+	}
+
+	public String getSupplierName() {
+		return supplierName;
+	}
+	public void setSupplierName(String supplierName) {
+		this.supplierName = supplierName;
+	}
 
 	public String getInternalNote() {
 		return internalNote;
@@ -117,6 +146,20 @@ public class Invoice {
 	public void setTaxLineTaxation(boolean taxLineTaxation) {
 		this.taxLineTaxation = taxLineTaxation;
 	}
+	
+	public float getTotalTax() {
+		return totalTax;
+	}
+	public void setTotalTax(float totalTax) {
+		this.totalTax = totalTax;
+	}
+	
+	public String getTaxCode() {
+		return taxCode;
+	}
+	public void setTaxCode(String taxCode) {
+		this.taxCode = taxCode;
+	}
 
 	public String getJEType() {
 		String type = "";
@@ -125,6 +168,15 @@ public class Invoice {
 		else if (this.getDocumentType().equals(Invoice.INV_CREDIT)) type = "KG";
 		
 		return type;
+	}
+	
+	
+	public List<JEntry> getJEntries() {
+		return jEntries;
+	}
+
+	public void setJEntries(List<JEntry> jEntries) {
+		this.jEntries = jEntries;
 	}
 	
 	public String getFirstPO() {
@@ -149,6 +201,30 @@ public class Invoice {
 		if (result.isPresent()) ccode = result.get().getSegment1();
 		
 		return ccode;
+	}
+	
+	public String getFirstSegment3() {
+		String segment = "";
+		
+		Optional<InvoiceLine> result = this.getLines()
+			      .stream().parallel()
+			      .filter(line -> !line.getSegment3().equals("")).findFirst();
+
+		if (result.isPresent()) segment = result.get().getSegment3();
+		
+		return segment;
+	}
+	
+	public String getFirstSegment4() {
+		String segment = "";
+		
+		Optional<InvoiceLine> result = this.getLines()
+			      .stream().parallel()
+			      .filter(line -> !line.getSegment4().equals("")).findFirst();
+
+		if (result.isPresent()) segment = result.get().getSegment4();
+		
+		return segment;
 	}
 
 }

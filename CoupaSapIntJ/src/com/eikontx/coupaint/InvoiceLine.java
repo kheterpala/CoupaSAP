@@ -23,8 +23,8 @@ public class InvoiceLine {
 	String segment4;
 	String taxCode;
 	float taxAmount;
+	float taxRate;
 	
-	List<JEntry> jEntries;
 	
 	public InvoiceLine(int invoiceId, int invoiceLineId) {
 		this.invoiceId = invoiceId;
@@ -133,6 +133,13 @@ public class InvoiceLine {
 	}
 
 	
+	public float getTaxRate() {
+		return taxRate;
+	}
+	public void setTaxRate(float taxRate) {
+		this.taxRate = taxRate;
+	}
+
 	public float getTaxAmount() {
 		return taxAmount;
 	}
@@ -167,14 +174,6 @@ public class InvoiceLine {
 	}
 	public void setSegment4(String segment4) {
 		this.segment4 = segment4;
-	}
-
-
-	public List<JEntry> getJEntries() {
-		return jEntries;
-	}
-	public void setJEntries(List<JEntry> jEntries) {
-		this.jEntries = jEntries;
 	}
 
 }

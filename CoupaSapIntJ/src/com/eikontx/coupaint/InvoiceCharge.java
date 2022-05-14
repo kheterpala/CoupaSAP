@@ -20,7 +20,7 @@ public class InvoiceCharge {
 	String taxCode;
 	float taxAmount;
 	
-	List<JEntry> jEntries;
+
 	
 	public InvoiceCharge(int invoiceId, int invoiceChargeId) {
 		this.invoiceId = invoiceId;
@@ -135,14 +135,6 @@ public class InvoiceCharge {
 		this.taxAmount = taxAmount;
 	}
 
-	public List<JEntry> getJEntries() {
-		return jEntries;
-	}
-
-	public void setJEntries(List<JEntry> jEntries) {
-		this.jEntries = jEntries;
-	}
-	
 	
 }
 

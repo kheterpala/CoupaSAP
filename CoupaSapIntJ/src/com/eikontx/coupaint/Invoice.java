@@ -21,6 +21,7 @@ public class Invoice {
 	String internalNote;
 	float total;
 	float accountingTotal;
+	String accountingTotalCurrency;
 	String currency;
 	boolean taxLineTaxation;
 	float totalTax;
@@ -112,6 +113,14 @@ public class Invoice {
 	}
 	
 	
+	public String getAccountingTotalCurrency() {
+		return accountingTotalCurrency;
+	}
+
+	public void setAccountingTotalCurrency(String accountingTotalCurrency) {
+		this.accountingTotalCurrency = accountingTotalCurrency;
+	}
+
 	public float getTotal() {
 		return total;
 	}

@@ -37,6 +37,7 @@ public class InvoiceUtil {
 			inv.setStatus(csvRecord.get("status"));
 			inv.setDocumentType(csvRecord.get("document-type"));
 			inv.setCurrency(csvRecord.get("currency"));
+			inv.setAccountingTotalCurrency(csvRecord.get("accounting-total-currency"));
 			inv.setInvoiceNumber(csvRecord.get("invoice-number"));
 			inv.setCreatedAt(IntUtil.getDtFromUTC(csvRecord.get("created-at")));
 			inv.setInvoiceDate(IntUtil.getDtFromUTC(csvRecord.get("invoice-date")));
@@ -81,6 +82,15 @@ public class InvoiceUtil {
 		System.out.println("All Charges:" + charges.size());
 		reader.close();
 
+		processInvoices(invoices,lines,charges);
+		
+		return invoices;
+		
+	}
+	
+	
+	private void processInvoices(List<Invoice> invoices, List<InvoiceLine> lines, List<InvoiceCharge> charges) {
+		
 		invoices.forEach(inv -> {
 			
 			List<InvoiceLine> invoiceLines = lines.stream()
@@ -89,21 +99,41 @@ public class InvoiceUtil {
 			
 			invoiceLines.forEach(line -> line.setInv((Invoice) inv));
 			float invTaxAmt = inv.getTotalTax();
-			for (InvoiceLine line : invoiceLines) {
+			
+			//Add taxes to Invoice a/c total
+			float acTotal = inv.getAccountingTotal() + inv.getTotalTax();
+			if (!inv.getCurrency().equals(inv.getAccountingTotalCurrency()) || (inv.getTotal() != inv.getAccountingTotal()))
+				inv.setAccountingTotal(acTotal);
+			
+			float totTaxAmt = 0;
+			for (int i=0; i<invoiceLines.size(); i++) {
+				InvoiceLine line = invoiceLines.get(i);
 				if (line.getTotal() == 0) continue;
-				//Set Line Level Tax
+				//Calculate and add line level tax
 				if (!inv.isTaxLineTaxation()) {
 					float taxRate = line.getTaxRate();
 					float taxAmt = (float) (line.getAccountingTotal() * (taxRate/100.0));
-					//System.out.println("Total:" + line.getAccountingTotal() + " Rate:" + taxRate + " Tax:" + taxAmt);
+					System.out.println(" Rate:" + taxRate + " Tax:" + taxAmt);
 					taxAmt = (float) Math.round(taxAmt * 100) / 100;
+					System.out.println("Rounded Tax:" + taxAmt);
+					totTaxAmt += taxAmt;
+					totTaxAmt = (float) Math.round(totTaxAmt * 100) / 100;
+					if (i==(invoiceLines.size()-1) && totTaxAmt != inv.getTotalTax()) {
+						
+						float adjTaxAmt = inv.getTotalTax() - totTaxAmt;
+						System.out.println("Total:" + inv.getTotalTax() + " Cur Total:" + totTaxAmt + "Adj:" + adjTaxAmt);
+						taxAmt += adjTaxAmt;
+						
+						taxAmt = (float) Math.round(taxAmt * 100) / 100;
+						
+					}
 					line.setTaxAmount(taxAmt);
 					
-					//System.out.println("Rounded Tax:" + line.getTaxAmount());
-				}
+					line.setAccountingTotal(line.getAccountingTotal() + line.getTaxAmount());
 				
-				System.out.println("AC Total:" + line.getAccountingTotal() + " Tax:" + line.getTaxAmount());
-				line.setAccountingTotal(line.getAccountingTotal() + line.getTaxAmount());
+					if (inv.getCurrency().equals(inv.getAccountingTotalCurrency()))
+						line.setTotal(line.getTotal() + line.getTaxAmount());
+				}
 			
 				
 			    List<JEntry> jEntries = processEntries(line);
@@ -134,11 +164,8 @@ public class InvoiceUtil {
 		    inv.setJEntries(invoiceJEntries);
 		});
 		
-		return invoices;
-		
 	}
-	
-	
+ 	
 	private JEntry getAccountJEntry(InvoiceLine line) {
 		String postingKey = null;
 		String account = null;

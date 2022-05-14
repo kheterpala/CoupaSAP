@@ -19,7 +19,7 @@ public class InvoiceCharge {
 	String segment4;
 	String taxCode;
 	float taxAmount;
-	
+	float taxRate;
 
 	
 	public InvoiceCharge(int invoiceId, int invoiceChargeId) {
@@ -135,6 +135,14 @@ public class InvoiceCharge {
 		this.taxAmount = taxAmount;
 	}
 
+	public float getTaxRate() {
+		return taxRate;
+	}
+	public void setTaxRate(float taxRate) {
+		this.taxRate = taxRate;
+	}
+
+	
 	
 }
 

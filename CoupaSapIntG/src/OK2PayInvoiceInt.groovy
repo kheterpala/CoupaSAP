@@ -3,7 +3,10 @@ import com.eikontx.coupaint.*
 class OK2PayInvoiceInt {
 		
 	public static void main(String[] args) {
-		String filepath = "/Users/kheterpala/Documents/SAP/Invoice Sample.csv";
+		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceFile0517.csv";
+		
+		//String filepath = "/Users/kheterpala/Documents/SAP/TestInvoice.csv";
+		
 		
 		try {
 			File f = new File(filepath);
@@ -27,7 +30,7 @@ class OK2PayInvoiceInt {
 	//Body
 	
 		
-		String[] OUT_INV_HDR = ["#","XREF1","BUKRS","BLART","BLDAT","BUDAT","MONAT","BKTXT",
+		String[] OUT_INV_HDR = ["XREF1","BUKRS","BLART","BLDAT","BUDAT","MONAT","BKTXT",
 				"WAERS","XBLNR"];
 
 		String[] OUT_INVLINE_HDR = ["NEWBS","NEWKO","NEWBW","SGTXT","WRBTR","DMBTR","MWSKZ",
@@ -56,12 +59,15 @@ class OK2PayInvoiceInt {
 			buffer.append(System.lineSeparator());
 		}
 		
+		String fiscalPeriod = "";
 		int invoiceCount = 1;
 		invoices.each { inv ->
 			
+			if (inv.getErrorCode() != null) return;
+			
 			Date postingDate = IntUtil.getPostingDate(inv.getCreatedAt())
 			
-			/*buffer.append("Count:" +invoiceCount + delim + "Invoice Id:" + inv.getId() + delim + 
+			/*buffer.append("Invoice Id:" + inv.getId() + delim + 
 				"company Code:" + inv.getFirstCompanyCode() + delim + "Doc Type:" + inv.getJEType() +  delim + 
 				"CreatedAt:" + IntUtil.getSAPDtStr(inv.getCreatedAt()) + delim + "Posting Date:" + IntUtil.getSAPDtStr(postingDate) + delim +
 				 "Fiscal Period:" + "" + delim + 
@@ -69,10 +75,11 @@ class OK2PayInvoiceInt {
 				 "PO:" + inv.getFirstPO() + delim + "Currency "  + inv.getCurrency() + delim + 
 				 "Inv Number:" + inv.getInvoiceNumber() + delim);*/
 			 
-			 buffer.append(invoiceCount + delim + inv.getId() + delim +
+			
+			buffer.append("ID-XREF1-" + inv.getId() + delim +
 				  inv.getFirstCompanyCode() + delim + inv.getJEType() +  delim +
 				  IntUtil.getSAPDtStr(inv.getCreatedAt()) + delim +  IntUtil.getSAPDtStr(postingDate) + delim +
-				   "" + delim +
+				   fiscalPeriod + delim +
 				   inv.getFirstPO() + delim +  inv.getCurrency() + delim +
 				   inv.getInvoiceNumber()+delim);
 			 
@@ -87,7 +94,7 @@ class OK2PayInvoiceInt {
 				/*
 				buffer.append("Posting Key:" + jEntry.getPostingKey() + delim + "Account:" + jEntry.getAccount() + delim + 
 					jEntry.getTxType() + delim + "Line Desc:" + IntUtil.escapeSpecialCharacters(jEntry.getItemText()) + delim + 
-					"Total:" + jEntry.getTxCurAmt() + delim + "AC Total:"  + jEntry.getLocalCurAmt() + delim + 
+					"Total:" + jEntry.getTxCurAmt() + delim + "AC Total:"  + jEntry.getLocalCurAmt() + delim + "Tax Code:"  + jEntry.getTaxCode() + delim
 					"TAX J:" + jEntry.getTaxJurisdiction() + delim + "Tax:" + invLine.getTaxAmount() + delim + "CC:" + jEntry.getCostCenter() + delim +
 					"Ord#:" + jEntry.getIntOrderNumber() + delim + "Ass#:" + jEntry.getAssignmentNumber());
 				*/
@@ -95,7 +102,7 @@ class OK2PayInvoiceInt {
 				///*
 				buffer.append(jEntry.getPostingKey() + delim +  jEntry.getAccount() + delim +
 				jEntry.getTxType() + delim +  IntUtil.escapeSpecialCharacters(jEntry.getItemText()) + delim +
-				jEntry.getTxCurAmt() + delim +  jEntry.getLocalCurAmt() + delim +
+				jEntry.getTxCurAmt() + delim +  jEntry.getLocalCurAmt() + delim + jEntry.getTaxCode() + delim +
 				jEntry.getTaxJurisdiction() + delim +  jEntry.getCostCenter() + delim +
 				jEntry.getIntOrderNumber() + delim + jEntry.getAssignmentNumber());
 					 
@@ -104,7 +111,7 @@ class OK2PayInvoiceInt {
 				buffer.append(System.lineSeparator());
 				entryCount++;
 			};
-		
+		                                                                                                                                                                               
 		};	   
 		
 		return buffer.toString();

@@ -9,7 +9,7 @@ public class JEntry {
 	float txCurAmt;
 	float localCurAmt;
 	String taxCode;
-	String taxJurisdiction = "CA00000000";
+	String taxJurisdiction;
 	String costCenter;
 	String intOrderNumber;
 	String assignmentNumber;

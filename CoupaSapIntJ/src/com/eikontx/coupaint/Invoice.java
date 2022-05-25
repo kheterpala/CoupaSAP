@@ -24,9 +24,11 @@ public class Invoice {
 	String accountingTotalCurrency;
 	String currency;
 	boolean taxLineTaxation;
+	float headerTax;
 	float totalTax;
 	String taxCode;
-	List<JEntry> jEntries = new ArrayList<JEntry>();;
+	String errorCode;
+	List<JEntry> jEntries = new ArrayList<JEntry>();
 	
 	List<InvoiceLine> lines;
 	List<InvoiceCharge> charges;
@@ -156,6 +158,13 @@ public class Invoice {
 		this.taxLineTaxation = taxLineTaxation;
 	}
 	
+	public float getHeaderTax() {
+		return headerTax;
+	}
+	public void setHeaderTax(float headerTax) {
+		this.headerTax = headerTax;
+	}
+
 	public float getTotalTax() {
 		return totalTax;
 	}
@@ -168,6 +177,13 @@ public class Invoice {
 	}
 	public void setTaxCode(String taxCode) {
 		this.taxCode = taxCode;
+	}
+
+	public String getErrorCode() {
+		return errorCode;
+	}
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
 	}
 
 	public String getJEType() {

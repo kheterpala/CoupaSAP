@@ -156,11 +156,10 @@ public class IntUtil {
 			List<String> tokens = new ArrayList<>();
 			tokens = getTokens(line);
 			
-			if (tokens.get(0).equals("type") && 
+			if (tokens.get(0).contains("type") && 
 					tokens.contains(hdrCol1) && tokens.contains(hdrCol2) &&
 					!hdrFound) {
 				sb.append(line);
-				//System.out.println("Appending line" + line);
 				hdrFound= true;
 			}
 			

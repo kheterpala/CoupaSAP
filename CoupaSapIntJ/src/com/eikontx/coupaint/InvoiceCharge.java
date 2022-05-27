@@ -8,7 +8,7 @@ public class InvoiceCharge {
 	Invoice inv;
 	int invoiceId;
 	int invoiceChargeId;
-	String lineType;
+	String description;
 	Date createdAt;
 	float total;
 	float percent;
@@ -49,12 +49,12 @@ public class InvoiceCharge {
 		this.invoiceChargeId = invoiceChargeId;
 	}
 
-	public String getLineType() {
-		return lineType;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setLineType(String lineType) {
-		this.lineType = lineType;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public Date getCreatedAt() {

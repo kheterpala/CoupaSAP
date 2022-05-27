@@ -168,6 +168,7 @@ public class InvoiceUtil {
 			
 			invoiceCharges.forEach(charge -> charge.setInv(inv));
 			
+			
 			if (!inv.isTaxLineTaxation() && invoiceLines.size() > 0) {
 				if (!allocateTaxes(inv,invoiceLines,invoiceCharges)) {
 					inv.setErrorCode("TaxAlloc-Err");
@@ -190,7 +191,7 @@ public class InvoiceUtil {
 			
 			if (inv.getCurrency().equals(inv.getAccountingTotalCurrency()) && (inv.getTotal() != inv.getAccountingTotal()))
 				inv.setErrorCode("ACTotal-Err");
-						
+			
 			for (InvoiceLine line : invoiceLines) {
 				if (line.getAccountingTotal() == 0) continue;
 				line.setAccountingTotal(line.getAccountingTotal() + line.getTaxAmount());
@@ -206,6 +207,7 @@ public class InvoiceUtil {
 			
 			((Invoice) inv).setLines(invoiceLines);
  
+			String shipGlAccount = IntUtil.getProperty("ship_gl_ac");
 			for (InvoiceCharge charge : invoiceCharges) {
 				if (charge.getAccountingTotal() == 0) continue;
 				charge.setAccountingTotal(charge.getAccountingTotal() + charge.getTaxAmount());
@@ -213,7 +215,12 @@ public class InvoiceUtil {
 				if (inv.getCurrency().equals(inv.getAccountingTotalCurrency()))
 					charge.setTotal(charge.getTotal() + charge.getTaxAmount());
 				
-			    List<JEntry> jEntries = processEntries(charge);
+				if (charge.getDescription().equals("InvoiceShippingCharge")) {
+					if (charge.getSegment2().equals("") && !shipGlAccount.equals("")) charge.setSegment2(shipGlAccount);
+					if (charge.getSegment3().equals("")) charge.setSegment3(inv.getFirstSegment3());
+				}
+
+				List<JEntry> jEntries = processEntries(charge);
 			    List<JEntry> invJEntries = charge.getInv().getJEntries();
 			    invJEntries.addAll(jEntries);
 			    charge.getInv().setJEntries(invJEntries);
@@ -224,6 +231,16 @@ public class InvoiceUtil {
 			List<JEntry> invoiceJEntries = inv.getJEntries();
 			invoiceJEntries.add(0,vendorJEntry);
 		    inv.setJEntries(invoiceJEntries);
+		    
+		    float entryACTotal = 0;
+		    for (int i=1; i < invoiceJEntries.size(); i++) {
+		    	JEntry entry = invoiceJEntries.get(i);
+		    	entryACTotal += entry.getLocalCurAmt();
+		    	System.out.println("Amt:" +entry.getLocalCurAmt() + " Total:" + entryACTotal );
+		    }
+		    
+		    if (getRound2Dec(entryACTotal) != inv.getAccountingTotal()) inv.setErrorCode("ACTotalvsLineTotal-Err");
+		    
 		});
 		
 	}
@@ -231,7 +248,7 @@ public class InvoiceUtil {
 	private JEntry getAccountJEntry(InvoiceLine line) {
 		String postingKey = null;
 		String invoiceType = line.getInv().getDocumentType();
-		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
+		if (invoiceType.equals(Invoice.INV_CREDIT) || line.getTotal() < 0) postingKey = "50";
 		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
 		
 		String supplierNum = line.getInv().getSupplierNumber();
@@ -265,17 +282,29 @@ public class InvoiceUtil {
 	
 	
 	private JEntry getAssetJEntry(InvoiceLine line) {
-		String postingKey = "70";
+		String postingKey = null;
+		String txType = null;
+		
+		String invoiceType = line.getInv().getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT) || line.getTotal() < 0) {
+			postingKey = "75";
+			txType = "105";
+		}
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) {
+			postingKey = "70";
+			txType = "100";
+		}
 		
 		String supplierNum = line.getInv().getSupplierNumber();
 		String account = line.getAssetId();
-		String costCenter = line.getSegment3();
+		String costCenter = "";
 		String orderNum = line.getSegment4();
 		
 		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
 					line.getTotal(), line.getAccountingTotal(),line.getTaxCode(),
 					costCenter, orderNum, supplierNum);
-		jEntry.setTxType("100");
+		
+		jEntry.setTxType(txType);
 		return jEntry;
 	}
 	
@@ -311,7 +340,7 @@ public class InvoiceUtil {
 		String supplierNum = charge.getInv().getSupplierNumber();
 		account = charge.getSegment2();
 		
-		JEntry jEntry = getJEntry(postingKey, account,charge.getLineType(),
+		JEntry jEntry = getJEntry(postingKey, account,charge.getDescription(),
 				charge.getTotal(), charge.getAccountingTotal(),charge.getTaxCode(),
 				charge.getSegment3(), charge.getSegment4(), supplierNum);
 		return jEntry;
@@ -322,9 +351,11 @@ public class InvoiceUtil {
 	private List<JEntry> processEntries(InvoiceLine line) {
 		List<JEntry> jEntries = new ArrayList<JEntry>();
 		
-		jEntries.add(getAccountJEntry(line));
+		
 		if (!line.getAssetId().equals(""))
 			jEntries.add(getAssetJEntry(line));
+		else 
+			jEntries.add(getAccountJEntry(line));
 		
 		return jEntries;
 	}
@@ -428,7 +459,7 @@ public class InvoiceUtil {
 			Integer invoiceChargeId = Integer.parseInt(csvRecord.get("invoice-charge-id"));
 			
 			InvoiceCharge invCharge = new InvoiceCharge(invoiceId,invoiceChargeId);
-			invCharge.setLineType(csvRecord.get("line-type"));
+			invCharge.setDescription(csvRecord.get("line-type"));
 			invCharge.setCreatedAt(IntUtil.getDtFromUTC(csvRecord.get("created-at")));
 			
 			if (!csvRecord.get("total").equals("")) {

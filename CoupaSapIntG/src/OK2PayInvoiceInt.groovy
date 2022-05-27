@@ -3,9 +3,9 @@ import com.eikontx.coupaint.*
 class OK2PayInvoiceInt {
 		
 	public static void main(String[] args) {
-		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceFile0517.csv";
+		//String filepath = "/Users/kheterpala/Documents/SAP/InvoiceFile0517.csv";
 		
-		//String filepath = "/Users/kheterpala/Documents/SAP/TestInvoice.csv";
+		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeaderPrepay.csv";
 		
 		
 		try {
@@ -63,7 +63,10 @@ class OK2PayInvoiceInt {
 		int invoiceCount = 1;
 		invoices.each { inv ->
 			
-			if (inv.getErrorCode() != null) return;
+			if (inv.getErrorCode() != null) {
+				System.out.println("Error Invoice: " + inv.getId() + " with error code: " + inv.getErrorCode());
+				return;
+			}
 			
 			Date postingDate = IntUtil.getPostingDate(inv.getCreatedAt())
 			
@@ -102,7 +105,7 @@ class OK2PayInvoiceInt {
 				///*
 				buffer.append(jEntry.getPostingKey() + delim +  jEntry.getAccount() + delim +
 				jEntry.getTxType() + delim +  IntUtil.escapeSpecialCharacters(jEntry.getItemText()) + delim +
-				jEntry.getTxCurAmt() + delim +  jEntry.getLocalCurAmt() + delim + jEntry.getTaxCode() + delim +
+				Math.abs(jEntry.getTxCurAmt()) + delim +  Math.abs(jEntry.getLocalCurAmt()) + delim + jEntry.getTaxCode() + delim +
 				jEntry.getTaxJurisdiction() + delim +  jEntry.getCostCenter() + delim +
 				jEntry.getIntOrderNumber() + delim + jEntry.getAssignmentNumber());
 					 

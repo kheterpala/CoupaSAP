@@ -78,6 +78,12 @@ public class InvoiceUtil {
 				inv.setTotalTax(totalTax);
 			}
 			
+			if (!csvRecord.get("handling_accural").equals("")) inv.setHandlingAccural(Boolean.parseBoolean(csvRecord.get("handling_accural")));
+			if (inv.isHandlingAccural()  && !csvRecord.get("accrued_handling_tax_amount").equals("")) {
+				Float handlingAccrualTax = Float.parseFloat(csvRecord.get("accrued_handling_tax_amount"));
+				inv.setHandlingAccrualTax(handlingAccrualTax);
+			}
+			
 			invoices.add(inv);
 		}
 		reader.close();
@@ -189,7 +195,9 @@ public class InvoiceUtil {
 			
 			System.out.println("Total Tax:" +inv.getTotalTax() +  " Hdr Tax:" +  inv.getHeaderTax());
 			
-			if (inv.getCurrency().equals(inv.getAccountingTotalCurrency()) && (inv.getTotal() != inv.getAccountingTotal()))
+			if (inv.getCurrency().equals(inv.getAccountingTotalCurrency()) 
+					&& inv.getErrorCode() == null
+					&& (inv.getTotal() != inv.getAccountingTotal()))
 				inv.setErrorCode("ACTotal-Err");
 			
 			for (InvoiceLine line : invoiceLines) {
@@ -215,9 +223,9 @@ public class InvoiceUtil {
 				if (inv.getCurrency().equals(inv.getAccountingTotalCurrency()))
 					charge.setTotal(charge.getTotal() + charge.getTaxAmount());
 				
-				if (charge.getDescription().equals("InvoiceShippingCharge")) {
-					if (charge.getSegment2().equals("") && !shipGlAccount.equals("")) charge.setSegment2(shipGlAccount);
-					if (charge.getSegment3().equals("")) charge.setSegment3(inv.getFirstSegment3());
+				if (!shipGlAccount.equals("")) {
+					charge.setSegment2(shipGlAccount);
+					charge.setSegment3(inv.getFirstSegment3());
 				}
 
 				List<JEntry> jEntries = processEntries(charge);
@@ -230,8 +238,13 @@ public class InvoiceUtil {
 			JEntry vendorJEntry = getVendorJEntry(inv);
 			List<JEntry> invoiceJEntries = inv.getJEntries();
 			invoiceJEntries.add(0,vendorJEntry);
+			
+			List<JEntry> jEntries = getHandlingJEntries(inv);
+			if (!jEntries.isEmpty()) invoiceJEntries.addAll(jEntries);
+			
 		    inv.setJEntries(invoiceJEntries);
 		    
+		    /*
 		    float entryACTotal = 0;
 		    for (int i=1; i < invoiceJEntries.size(); i++) {
 		    	JEntry entry = invoiceJEntries.get(i);
@@ -240,6 +253,7 @@ public class InvoiceUtil {
 		    }
 		    
 		    if (getRound2Dec(entryACTotal) != inv.getAccountingTotal()) inv.setErrorCode("ACTotalvsLineTotal-Err");
+		     */
 		    
 		});
 		
@@ -329,24 +343,101 @@ public class InvoiceUtil {
 		return jEntry;
 	}
 	
+	private List<JEntry> getHandlingJEntries(Invoice inv) {
+		List<JEntry> jEntries = new ArrayList<JEntry>();
+		
+		if (inv.isHandlingAccural()) {
+			jEntries.add(getInvoiceTaxAccrualJEntry(inv));
+			jEntries.add(getInvoiceTaxAccrualRevJEntry(inv));
+		}
+		return jEntries;
+	}
 	
 	private JEntry getAccountJEntry(InvoiceCharge charge) {
 		String postingKey = null;
-		String account = null;
 		String invoiceType = charge.getInv().getDocumentType();
 		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
 		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
 		
 		String supplierNum = charge.getInv().getSupplierNumber();
-		account = charge.getSegment2();
+		String account = charge.getSegment2();
+		String costCenter = charge.getSegment3();
+		String orderNum = charge.getSegment4();
 		
 		JEntry jEntry = getJEntry(postingKey, account,charge.getDescription(),
 				charge.getTotal(), charge.getAccountingTotal(),charge.getTaxCode(),
-				charge.getSegment3(), charge.getSegment4(), supplierNum);
+				costCenter, orderNum, supplierNum);
 		return jEntry;
 	}
 	
 	
+	private JEntry getLineTaxAccrualJEntry(InvoiceLine line) {
+		String postingKey = null;
+		String invoiceType = line.getInv().getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT) || line.getTotal() < 0) postingKey = "50";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
+		
+		String supplierNum = line.getInv().getSupplierNumber();
+		String account = line.getSegment2();
+		String costCenter = line.getSegment3();
+		String orderNum = line.getSegment4();
+		
+		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
+				line.getAccruedTax(), line.getAccruedTax(),line.getTaxCode(),
+					costCenter, orderNum, supplierNum);
+		return jEntry;
+	}
+	
+	private JEntry getLineTaxAccrualRevJEntry(InvoiceLine line) {
+		String postingKey = null;
+		String invoiceType = line.getInv().getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT) || line.getTotal() < 0) postingKey = "50";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
+		
+		String supplierNum = line.getInv().getSupplierNumber();
+		String account = IntUtil.getProperty("tax_gl_ac");
+		String costCenter = "";
+		String orderNum = "";
+		
+		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
+					line.getAccruedTax(), line.getAccruedTax(),line.getTaxCode(),
+					costCenter, orderNum, supplierNum);
+		return jEntry;
+	}
+	
+	private JEntry getInvoiceTaxAccrualJEntry(Invoice inv) {
+		String postingKey = null;
+		String invoiceType = inv.getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
+		
+		String supplierNum = inv.getSupplierNumber();
+		String account = IntUtil.getProperty("ship_gl_ac");
+		String costCenter = "";
+		String orderNum = "";
+		
+		JEntry jEntry = getJEntry(postingKey, account,inv.getInvoiceNumber(),
+				inv.getHandlingAccrualTax(), inv.getHandlingAccrualTax(),inv.getTaxCode(),
+					costCenter, orderNum, supplierNum);
+		return jEntry;
+	}
+	
+	private JEntry getInvoiceTaxAccrualRevJEntry(Invoice inv) {
+		String postingKey = null;
+		String invoiceType = inv.getDocumentType();
+		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
+		
+		String supplierNum = inv.getSupplierNumber();
+		String account = IntUtil.getProperty("tax_gl_ac");
+		String costCenter = "";
+		String orderNum = "";
+		
+		JEntry jEntry = getJEntry(postingKey, account,inv.getInvoiceNumber(),
+				inv.getHandlingAccrualTax(), inv.getHandlingAccrualTax(),inv.getTaxCode(),
+					costCenter, orderNum, supplierNum);
+		return jEntry;
+	}
 	
 	private List<JEntry> processEntries(InvoiceLine line) {
 		List<JEntry> jEntries = new ArrayList<JEntry>();
@@ -357,6 +448,10 @@ public class InvoiceUtil {
 		else 
 			jEntries.add(getAccountJEntry(line));
 		
+		if (line.isAccrueTax()) {
+			jEntries.add(getLineTaxAccrualJEntry(line));
+			jEntries.add(getLineTaxAccrualRevJEntry(line));
+		}
 		return jEntries;
 	}
 	
@@ -424,6 +519,12 @@ public class InvoiceUtil {
 				Float taxRate = Float.parseFloat(rndTaxArr[1].trim());
 				invLine.setTaxRate(taxRate);
 			}
+			
+			if (!csvRecord.get("accrue_tax").equals("")) invLine.setAccrueTax(Boolean.parseBoolean(csvRecord.get("accrue_tax")));
+			if (invLine.isAccrueTax()  && !csvRecord.get("accrued_tax_amount").equals("")) {
+				Float accruedTax = Float.parseFloat(csvRecord.get("accrued_tax_amount"));
+				invLine.setAccruedTax(accruedTax);
+			}	
 			
 			String assetId = csvRecord.get("asset_id external_ref_num");
 			assetId = (assetId.equals("00000") || assetId.equals("0")) ? "" : assetId;

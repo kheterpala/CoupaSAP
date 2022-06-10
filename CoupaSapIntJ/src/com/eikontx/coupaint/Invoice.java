@@ -27,6 +27,8 @@ public class Invoice {
 	float headerTax;
 	float totalTax;
 	String taxCode;
+	boolean handlingAccural;
+	float handlingAccrualTax;
 	String errorCode;
 	List<JEntry> jEntries = new ArrayList<JEntry>();
 	
@@ -177,6 +179,22 @@ public class Invoice {
 	}
 	public void setTaxCode(String taxCode) {
 		this.taxCode = taxCode;
+	}
+
+	public boolean isHandlingAccural() {
+		return handlingAccural;
+	}
+
+	public void setHandlingAccural(boolean handlingAccural) {
+		this.handlingAccural = handlingAccural;
+	}
+
+	public float getHandlingAccrualTax() {
+		return handlingAccrualTax;
+	}
+
+	public void setHandlingAccrualTax(float handlingAccrualTax) {
+		this.handlingAccrualTax = handlingAccrualTax;
 	}
 
 	public String getErrorCode() {

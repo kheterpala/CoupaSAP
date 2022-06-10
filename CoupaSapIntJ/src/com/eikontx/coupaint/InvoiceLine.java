@@ -24,6 +24,8 @@ public class InvoiceLine {
 	String taxCode;
 	float taxAmount;
 	float taxRate;
+	boolean accrueTax;
+	float accruedTax;
 	
 	
 	public InvoiceLine(int invoiceId, int invoiceLineId) {
@@ -147,7 +149,22 @@ public class InvoiceLine {
 		this.taxAmount = taxAmount;
 	}
 
-	
+	public boolean isAccrueTax() {
+		return accrueTax;
+	}
+
+	public void setAccrueTax(boolean accrueTax) {
+		this.accrueTax = accrueTax;
+	}
+
+	public float getAccruedTax() {
+		return accruedTax;
+	}
+
+	public void setAccruedTax(float accruedTax) {
+		this.accruedTax = accruedTax;
+	}
+
 	public String getSegment1() {
 		return segment1;
 	}

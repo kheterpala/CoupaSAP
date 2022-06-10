@@ -246,16 +246,15 @@ public class InvoiceUtil {
 			
 		    inv.setJEntries(invoiceJEntries);
 		    
-		    /*
+		    
 		    float entryACTotal = 0;
 		    for (int i=1; i < invoiceJEntries.size(); i++) {
 		    	JEntry entry = invoiceJEntries.get(i);
-		    	entryACTotal += entry.getLocalCurAmt();
+		    	if (entry.getType().equals(JEntry.ENTRY_STD)) entryACTotal += entry.getLocalCurAmt();
 		    	System.out.println("Amt:" +entry.getLocalCurAmt() + " Total:" + entryACTotal );
 		    }
 		    
 		    if (getRound2Dec(entryACTotal) != inv.getAccountingTotal()) inv.setErrorCode("ACTotalvsLineTotal-Err");
-		     */
 		    
 		});
 		
@@ -324,9 +323,11 @@ public class InvoiceUtil {
 		return jEntry;
 	}
 	
+	
 	private JEntry getJEntry(String postingKey, String account, String itemText,
-				float txCurAmt, float localCurAmt, String taxCode, String costCenter,
-				String orderNum, String adssignmentNum) {
+			float txCurAmt, float localCurAmt, String taxCode, String costCenter,
+			String orderNum, String assignmentNum, String type) {
+		
 		JEntry jEntry = new JEntry();
 		jEntry.setPostingKey(postingKey);
 		jEntry.setAccount(account);
@@ -336,13 +337,23 @@ public class InvoiceUtil {
 		jEntry.setTaxCode(taxCode);
 		jEntry.setCostCenter(costCenter);
 		jEntry.setIntOrderNumber(orderNum);
-		jEntry.setAssignmentNumber(adssignmentNum);
+		jEntry.setAssignmentNumber(assignmentNum);
 		
 		String taxJurisdiction = IntUtil.getProperty("tax_jurisdiction");
 		if (!jEntry.getTaxCode().equals("")) jEntry.setTaxJurisdiction(taxJurisdiction);
 		else jEntry.setTaxJurisdiction("");
-
+		
+		jEntry.setType(type);
+		
 		return jEntry;
+	}
+	
+	private JEntry getJEntry(String postingKey, String account, String itemText,
+				float txCurAmt, float localCurAmt, String taxCode, String costCenter,
+				String orderNum, String assignmentNum) {
+
+		return getJEntry(postingKey, account, itemText, txCurAmt, localCurAmt, taxCode, costCenter,
+					orderNum, assignmentNum, JEntry.ENTRY_STD);
 	}
 	
 	private List<JEntry> getHandlingJEntries(Invoice inv) {
@@ -386,7 +397,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
 				line.getAccruedTax(), line.getAccruedTax(),line.getTaxCode(),
-					costCenter, orderNum, supplierNum);
+					costCenter, orderNum, supplierNum, JEntry.ENTRY_ACC);
 		return jEntry;
 	}
 	
@@ -403,7 +414,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
 					line.getAccruedTax(), line.getAccruedTax(),line.getTaxCode(),
-					costCenter, orderNum, supplierNum);
+					costCenter, orderNum, supplierNum, JEntry.ENTRY_ACC);
 		return jEntry;
 	}
 	
@@ -420,7 +431,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,inv.getInvoiceNumber(),
 				inv.getHandlingAccrualTax(), inv.getHandlingAccrualTax(),inv.getTaxCode(),
-					costCenter, orderNum, supplierNum);
+					costCenter, orderNum, supplierNum, JEntry.ENTRY_ACC);
 		return jEntry;
 	}
 	
@@ -437,7 +448,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,inv.getInvoiceNumber(),
 				inv.getHandlingAccrualTax(), inv.getHandlingAccrualTax(),inv.getTaxCode(),
-					costCenter, orderNum, supplierNum);
+					costCenter, orderNum, supplierNum, JEntry.ENTRY_ACC);
 		return jEntry;
 	}
 	

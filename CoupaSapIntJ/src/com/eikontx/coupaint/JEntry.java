@@ -2,6 +2,9 @@ package com.eikontx.coupaint;
 
 public class JEntry {
 	
+	static String ENTRY_STD = "Standard";
+	static String ENTRY_ACC = "Accrual";
+	
 	String postingKey;
 	String account;
 	String txType = "";
@@ -13,6 +16,7 @@ public class JEntry {
 	String costCenter;
 	String intOrderNumber;
 	String assignmentNumber;
+	String type;
 	
 	public JEntry() {
 	}
@@ -83,6 +87,14 @@ public class JEntry {
 	}
 	public void setAssignmentNumber(String assignmentNumber) {
 		this.assignmentNumber = assignmentNumber;
+	}
+
+
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	

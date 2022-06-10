@@ -356,7 +356,7 @@ public class InvoiceUtil {
 	private JEntry getAccountJEntry(InvoiceCharge charge) {
 		String postingKey = null;
 		String invoiceType = charge.getInv().getDocumentType();
-		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
+		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50"; //credit
 		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
 		
 		String supplierNum = charge.getInv().getSupplierNumber();
@@ -391,8 +391,8 @@ public class InvoiceUtil {
 	private JEntry getLineTaxAccrualRevJEntry(InvoiceLine line) {
 		String postingKey = null;
 		String invoiceType = line.getInv().getDocumentType();
-		if (invoiceType.equals(Invoice.INV_CREDIT) || line.getTotal() < 0) postingKey = "50";
-		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
+		if (invoiceType.equals(Invoice.INV_CREDIT) || line.getTotal() < 0) postingKey = "40";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "50"; //credit
 		
 		String supplierNum = line.getInv().getSupplierNumber();
 		String account = IntUtil.getProperty("tax_gl_ac");
@@ -408,7 +408,7 @@ public class InvoiceUtil {
 	private JEntry getInvoiceTaxAccrualJEntry(Invoice inv) {
 		String postingKey = null;
 		String invoiceType = inv.getDocumentType();
-		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
+		if (invoiceType.equals(Invoice.INV_CREDIT) || inv.getTotal() < 0) postingKey = "50";
 		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
 		
 		String supplierNum = inv.getSupplierNumber();
@@ -425,9 +425,9 @@ public class InvoiceUtil {
 	private JEntry getInvoiceTaxAccrualRevJEntry(Invoice inv) {
 		String postingKey = null;
 		String invoiceType = inv.getDocumentType();
-		if (invoiceType.equals(Invoice.INV_CREDIT)) postingKey = "50";
-		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "40";
-		
+		if (invoiceType.equals(Invoice.INV_CREDIT) || inv.getTotal() < 0) postingKey = "40";
+		else if (invoiceType.equals(Invoice.INV_DEBIT)) postingKey = "50"; //credit
+		 
 		String supplierNum = inv.getSupplierNumber();
 		String account = IntUtil.getProperty("tax_gl_ac");
 		String costCenter = "";
@@ -572,7 +572,6 @@ public class InvoiceUtil {
 				Float acTotal = Float.parseFloat(csvRecord.get("accounting-total"));
 				invCharge.setAccountingTotal(acTotal);
 			}
-			
 			
 			invCharge.setSegment1(csvRecord.get("segment-1"));
 			invCharge.setSegment2(csvRecord.get("segment-2"));

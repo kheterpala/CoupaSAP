@@ -117,6 +117,8 @@ public class InvoiceUtil {
 	private boolean allocateTaxes(Invoice inv, List<InvoiceLine> lines, List<InvoiceCharge> charges) {
 		float totTaxAmt = 0;
 		
+		// Need to allocate to prepay lines ?
+		
 		for (InvoiceLine line : lines) {
 			if (line.getTotal() == 0) continue;
 			float taxRate = line.getTaxRate();

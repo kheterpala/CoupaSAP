@@ -123,7 +123,7 @@ public class InvoiceUtil {
 			if (line.getTotal() == 0) continue;
 			float taxRate = line.getTaxRate();
 			float taxAmt = (float) (line.getAccountingTotal() * (taxRate/100.0));
-			System.out.println(" Rate:" + taxRate + " Tax:" + taxAmt);
+			//System.out.println(" Rate:" + taxRate + " Tax:" + taxAmt);
 			taxAmt = getRound2Dec(taxAmt);
 			line.setTaxAmount(taxAmt);
 			totTaxAmt += taxAmt;
@@ -138,6 +138,7 @@ public class InvoiceUtil {
 		
 		boolean ret = true;
 		if (adjTaxAmt > taxAdjLimit) {
+			System.out.println(" Tot Tax:" + totTaxAmt + " Inv Tax:" + inv.getTotalTax());
 			System.out.println(" Diff Limit:" + taxAdjLimit + " Diff:" + adjTaxAmt);
 			ret = false;
 		}
@@ -183,19 +184,19 @@ public class InvoiceUtil {
 				}
 			}
 			
-			
 			float invTaxAmt = inv.getTotalTax();
 			float totalCharges = 0;
-			for (InvoiceCharge charge : charges) {
+			for (InvoiceCharge charge : invoiceCharges) {
 				if (charge.getTotal() == 0) continue;
 				totalCharges += charge.getAccountingTotal();
 			}
 			
+			//System.out.println("Before AC Total" + inv.getAccountingTotal() + "charged:" + totalCharges + " TTax:" + inv.getTotalTax() );
 			//Add charges and taxes to Invoice a/c total
 			float acTotal = inv.getAccountingTotal() + totalCharges + inv.getTotalTax();
 			inv.setAccountingTotal(acTotal);
 			
-			System.out.println("Total Tax:" +inv.getTotalTax() +  " Hdr Tax:" +  inv.getHeaderTax());
+			//System.out.println("After AC Total" + acTotal + " Total Tax:" +inv.getTotalTax() +  " Hdr Tax:" +  inv.getHeaderTax());
 			
 			if (inv.getCurrency().equals(inv.getAccountingTotalCurrency()) 
 					&& inv.getErrorCode() == null
@@ -250,11 +251,15 @@ public class InvoiceUtil {
 		    float entryACTotal = 0;
 		    for (int i=1; i < invoiceJEntries.size(); i++) {
 		    	JEntry entry = invoiceJEntries.get(i);
-		    	if (entry.getType().equals(JEntry.ENTRY_STD)) entryACTotal += entry.getLocalCurAmt();
-		    	System.out.println("Amt:" +entry.getLocalCurAmt() + " Total:" + entryACTotal );
+		    	if (entry.getType().equals(JEntry.ENTRY_STD)) {
+		    		entryACTotal += entry.getLocalCurAmt();
+		    		System.out.println("Amt:" +entry.getLocalCurAmt() + " Total:" + entryACTotal );
+		    	}
 		    }
 		    
-		    if (getRound2Dec(entryACTotal) != inv.getAccountingTotal()) inv.setErrorCode("ACTotalvsLineTotal-Err");
+		    System.out.println("Inv Amt:" +inv.getTotal() + " Local Amt:" + inv.getAccountingTotal());
+		    
+		    //if (getRound2Dec(entryACTotal) != inv.getAccountingTotal()) inv.setErrorCode("ACTotalvsLineTotal-Err");
 		    
 		});
 		
@@ -273,7 +278,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
 					line.getTotal(), line.getAccountingTotal(),line.getTaxCode(),
-					costCenter, orderNum, supplierNum);
+					costCenter, orderNum, supplierNum, line.getInv().getTaxCode(), JEntry.ENTRY_STD);
 		return jEntry;
 	}
 	
@@ -291,7 +296,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,inv.getSupplierName(),
 					inv.getTotal(), inv.getAccountingTotal(),inv.getTaxCode(),
-					costCenter, orderNum, supplierNum);
+					costCenter, orderNum, supplierNum, inv.getTaxCode(), JEntry.ENTRY_STD);
 		return jEntry;
 	}
 	
@@ -317,7 +322,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
 					line.getTotal(), line.getAccountingTotal(),line.getTaxCode(),
-					costCenter, orderNum, supplierNum);
+					costCenter, orderNum, supplierNum, line.getInv().getTaxCode(), JEntry.ENTRY_STD);
 		
 		jEntry.setTxType(txType);
 		return jEntry;
@@ -326,7 +331,7 @@ public class InvoiceUtil {
 	
 	private JEntry getJEntry(String postingKey, String account, String itemText,
 			float txCurAmt, float localCurAmt, String taxCode, String costCenter,
-			String orderNum, String assignmentNum, String type) {
+			String orderNum, String assignmentNum,  String invTaxCode, String type) {
 		
 		JEntry jEntry = new JEntry();
 		jEntry.setPostingKey(postingKey);
@@ -334,27 +339,36 @@ public class InvoiceUtil {
 		jEntry.setItemText(itemText);
 		jEntry.setTxCurAmt(txCurAmt);
 		jEntry.setLocalCurAmt(localCurAmt);
-		jEntry.setTaxCode(taxCode);
 		jEntry.setCostCenter(costCenter);
 		jEntry.setIntOrderNumber(orderNum);
 		jEntry.setAssignmentNumber(assignmentNum);
 		
-		String taxJurisdiction = IntUtil.getProperty("tax_jurisdiction");
-		if (!jEntry.getTaxCode().equals("")) jEntry.setTaxJurisdiction(taxJurisdiction);
-		else jEntry.setTaxJurisdiction("");
+		String [] taxCodeArr;
+		String sapTaxCode = "I0";
+		String sapTaxJurisdiction = IntUtil.getProperty("CA_tax_jurisdiction");
+		
+		
+		if (invTaxCode.contains("-")) {
+			taxCodeArr = invTaxCode.split("-");
+			
+			String taxJurisdictionState = taxCodeArr[1].trim();
+			if (taxJurisdictionState.matches("[A-Za-z]{2}"))
+				sapTaxJurisdiction = IntUtil.getProperty(taxJurisdictionState + "_tax_jurisdiction");
+		}
+		
+		if (!taxCode.equals("")) {
+			taxCodeArr = taxCode.split("-");
+			sapTaxCode = taxCodeArr[0].trim();			
+		}
+		
+		jEntry.setTaxCode(sapTaxCode);
+		jEntry.setTaxJurisdiction(sapTaxJurisdiction);
 		
 		jEntry.setType(type);
 		
 		return jEntry;
 	}
 	
-	private JEntry getJEntry(String postingKey, String account, String itemText,
-				float txCurAmt, float localCurAmt, String taxCode, String costCenter,
-				String orderNum, String assignmentNum) {
-
-		return getJEntry(postingKey, account, itemText, txCurAmt, localCurAmt, taxCode, costCenter,
-					orderNum, assignmentNum, JEntry.ENTRY_STD);
-	}
 	
 	private List<JEntry> getHandlingJEntries(Invoice inv) {
 		List<JEntry> jEntries = new ArrayList<JEntry>();
@@ -379,7 +393,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,charge.getDescription(),
 				charge.getTotal(), charge.getAccountingTotal(),charge.getTaxCode(),
-				costCenter, orderNum, supplierNum);
+				costCenter, orderNum, supplierNum, charge.getInv().getTaxCode(), JEntry.ENTRY_STD);
 		return jEntry;
 	}
 	
@@ -397,7 +411,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
 				line.getAccruedTax(), line.getAccruedTax(),line.getTaxCode(),
-					costCenter, orderNum, supplierNum, JEntry.ENTRY_ACC);
+					costCenter, orderNum, supplierNum, line.getInv().getTaxCode(), JEntry.ENTRY_ACC);
 		return jEntry;
 	}
 	
@@ -414,7 +428,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,line.getDescription(),
 					line.getAccruedTax(), line.getAccruedTax(),line.getTaxCode(),
-					costCenter, orderNum, supplierNum, JEntry.ENTRY_ACC);
+					costCenter, orderNum, supplierNum, line.getInv().getTaxCode(), JEntry.ENTRY_ACC);
 		return jEntry;
 	}
 	
@@ -426,12 +440,12 @@ public class InvoiceUtil {
 		
 		String supplierNum = inv.getSupplierNumber();
 		String account = IntUtil.getProperty("ship_gl_ac");
-		String costCenter = "";
+		String costCenter = inv.getFirstSegment3();
 		String orderNum = "";
 		
 		JEntry jEntry = getJEntry(postingKey, account,inv.getInvoiceNumber(),
 				inv.getHandlingAccrualTax(), inv.getHandlingAccrualTax(),inv.getTaxCode(),
-					costCenter, orderNum, supplierNum, JEntry.ENTRY_ACC);
+					costCenter, orderNum, supplierNum, inv.getTaxCode(), JEntry.ENTRY_ACC);
 		return jEntry;
 	}
 	
@@ -448,7 +462,7 @@ public class InvoiceUtil {
 		
 		JEntry jEntry = getJEntry(postingKey, account,inv.getInvoiceNumber(),
 				inv.getHandlingAccrualTax(), inv.getHandlingAccrualTax(),inv.getTaxCode(),
-					costCenter, orderNum, supplierNum, JEntry.ENTRY_ACC);
+					costCenter, orderNum, supplierNum, inv.getTaxCode(),JEntry.ENTRY_ACC);
 		return jEntry;
 	}
 	
@@ -531,6 +545,7 @@ public class InvoiceUtil {
 				String[] rndTaxArr = csvRecord.get("rnd_tax_type").split("-");
 				Float taxRate = Float.parseFloat(rndTaxArr[1].trim());
 				invLine.setTaxRate(taxRate);
+				invLine.setTaxCode(rndTaxArr[0].trim());
 			}
 			
 			if (!csvRecord.get("accrue_tax").equals("")) invLine.setAccrueTax(Boolean.parseBoolean(csvRecord.get("accrue_tax")));

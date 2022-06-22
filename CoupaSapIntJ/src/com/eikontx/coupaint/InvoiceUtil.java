@@ -194,7 +194,7 @@ public class InvoiceUtil {
 			//System.out.println("Before AC Total" + inv.getAccountingTotal() + "charged:" + totalCharges + " TTax:" + inv.getTotalTax() );
 			//Add charges and taxes to Invoice a/c total
 			float acTotal = inv.getAccountingTotal() + totalCharges + inv.getTotalTax();
-			inv.setAccountingTotal(acTotal);
+			inv.setAccountingTotal(getRound2Dec(acTotal));
 			
 			//System.out.println("After AC Total" + acTotal + " Total Tax:" +inv.getTotalTax() +  " Hdr Tax:" +  inv.getHeaderTax());
 			

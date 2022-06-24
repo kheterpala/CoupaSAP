@@ -3,7 +3,7 @@ import com.eikontx.coupaint.*
 class OK2PayInvoiceInt {
 		
 	public static void main(String[] args) {
-		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220607_201122Z_v1.csv";
+		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220623_194421Z.csv";
 		
 		//String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeaderPrepay.csv";
 		
@@ -65,7 +65,6 @@ class OK2PayInvoiceInt {
 			
 			if (inv.getErrorCode() != null) {
 				System.out.println("Error Invoice: " + inv.getId() + " with error code: " + inv.getErrorCode());
-				return;
 			}
 			
 			Date postingDate = IntUtil.getPostingDate(inv.getCreatedAt())
@@ -85,9 +84,7 @@ class OK2PayInvoiceInt {
 				   fiscalPeriod + delim +
 				   inv.getFirstPO() + delim +  inv.getCurrency() + delim +
 				   inv.getInvoiceNumber()+delim);
-			 
-			List<InvoiceLine> invLines = inv.getLines();
-			List<InvoiceCharge> invCharges = inv.getCharges();
+
 			invoiceCount++;
 			
 			int entryCount = 1; //Reset entry count

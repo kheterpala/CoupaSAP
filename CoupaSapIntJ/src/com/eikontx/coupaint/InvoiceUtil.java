@@ -123,7 +123,7 @@ public class InvoiceUtil {
 			if (line.getTotal() == 0) continue;
 			float taxRate = line.getTaxRate();
 			float taxAmt = (float) (line.getAccountingTotal() * (taxRate/100.0));
-			//System.out.println(" Rate:" + taxRate + " Tax:" + taxAmt);
+			System.out.println(" Rate:" + taxRate + " Tax:" + taxAmt);
 			taxAmt = getRound2Dec(taxAmt);
 			line.setTaxAmount(taxAmt);
 			totTaxAmt += taxAmt;

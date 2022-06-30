@@ -3,7 +3,7 @@ import com.eikontx.coupaint.*
 class OK2PayInvoiceInt {
 		
 	public static void main(String[] args) {
-		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220623_194421Z.csv";
+		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220629_180955Zv2.csv";
 		
 		//String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeaderPrepay.csv";
 		

@@ -64,7 +64,7 @@ def Message processData(Message message) {
 	}
 	
 	String fiscalPeriod = "";
-	int invoiceCount = 1;
+	int invoiceCount = 0;
 	String invoiceList = "";
 	invoices.each { inv ->
 		
@@ -79,35 +79,35 @@ def Message processData(Message message) {
 			invoiceList += invNum + ",";
 		}
 
-		Date postingDate = IntUtil.getPostingDate(inv.getCreatedAt())
+		Date postingDate = IntUtil.getPostingDate(inv.getInvoiceDate())
 			
 		buffer.append("ID-XREF1-" + inv.getId() + delim +
 				  inv.getFirstCompanyCode() + delim + inv.getJEType() +  delim +
-				  IntUtil.getSAPDtStr(inv.getCreatedAt()) + delim +  IntUtil.getSAPDtStr(postingDate) + delim +
+				  IntUtil.getSAPDtStr(inv.getInvoiceDate()) + delim +  IntUtil.getSAPDtStr(postingDate) + delim +
 				   fiscalPeriod + delim +
 				   inv.getFirstPO() + delim +  inv.getCurrency() + delim +
 				   inv.getInvoiceNumber()+delim);
 			 
-			List<InvoiceLine> invLines = inv.getLines();
-			List<InvoiceCharge> invCharges = inv.getCharges();
-			invoiceCount++;
+		List<InvoiceLine> invLines = inv.getLines();
+		List<InvoiceCharge> invCharges = inv.getCharges();
+		invoiceCount++;
+		
+		int entryCount = 1; //Reset entry count
+		List<JEntry> jEntries = inv.getJEntries();
+		jEntries.each { jEntry ->
+			if (entryCount > 1) for (int i=0;i<OUT_INV_HDR.length;i++) buffer.append(delim);
 			
-			int entryCount = 1; //Reset entry count
-			List<JEntry> jEntries = inv.getJEntries();
-			jEntries.each { jEntry ->
-				if (entryCount > 1) for (int i=0;i<OUT_INV_HDR.length;i++) buffer.append(delim);
-				
-				buffer.append(jEntry.getPostingKey() + delim +  jEntry.getAccount() + delim +
-				jEntry.getTxType() + delim +  IntUtil.escapeSpecialCharacters(jEntry.getItemText()) + delim +
-				Math.abs(jEntry.getTxCurAmt()) + delim +  Math.abs(jEntry.getLocalCurAmt()) + delim + jEntry.getTaxCode() + delim +
-				jEntry.getTaxJurisdiction() + delim +  jEntry.getCostCenter() + delim +
-				jEntry.getIntOrderNumber() + delim + jEntry.getAssignmentNumber());
-					 
-				//*/
-				
-				buffer.append(System.lineSeparator());
-				entryCount++;
-			};
+			buffer.append(jEntry.getPostingKey() + delim +  jEntry.getAccount() + delim +
+			jEntry.getTxType() + delim +  IntUtil.escapeSpecialCharacters(jEntry.getItemText()) + delim +
+			Math.abs(jEntry.getTxCurAmt()) + delim +  Math.abs(jEntry.getLocalCurAmt()) + delim + jEntry.getTaxCode() + delim +
+			jEntry.getTaxJurisdiction() + delim +  jEntry.getCostCenter() + delim +
+			jEntry.getIntOrderNumber() + delim + jEntry.getAssignmentNumber());
+				 
+			//*/
+			
+			buffer.append(System.lineSeparator());
+			entryCount++;
+		};
 		                                                                                                                                                                               
 	};	   
 	

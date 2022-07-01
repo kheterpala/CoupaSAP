@@ -3,7 +3,7 @@ import com.eikontx.coupaint.*
 class OK2PayInvoiceInt {
 		
 	public static void main(String[] args) {
-		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220629_180955Zv2.csv";
+		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220630_233255Z.csv";
 		
 		//String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeaderPrepay.csv";
 		
@@ -67,7 +67,7 @@ class OK2PayInvoiceInt {
 				System.out.println("Error Invoice: " + inv.getId() + " with error code: " + inv.getErrorCode());
 			}
 			
-			Date postingDate = IntUtil.getPostingDate(inv.getCreatedAt())
+			Date postingDate = IntUtil.getPostingDate(inv.getInvoiceDate());
 			
 			/*buffer.append("Invoice Id:" + inv.getId() + delim + 
 				"company Code:" + inv.getFirstCompanyCode() + delim + "Doc Type:" + inv.getJEType() +  delim + 
@@ -80,7 +80,7 @@ class OK2PayInvoiceInt {
 			
 			buffer.append("ID-XREF1-" + inv.getId() + delim +
 				  inv.getFirstCompanyCode() + delim + inv.getJEType() +  delim +
-				  IntUtil.getSAPDtStr(inv.getCreatedAt()) + delim +  IntUtil.getSAPDtStr(postingDate) + delim +
+				  IntUtil.getSAPDtStr(inv.getInvoiceDate()) + delim +  IntUtil.getSAPDtStr(postingDate) + delim +
 				   fiscalPeriod + delim +
 				   inv.getFirstPO() + delim +  inv.getCurrency() + delim +
 				   inv.getInvoiceNumber()+delim);

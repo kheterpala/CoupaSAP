@@ -19,16 +19,16 @@ public class Invoice {
 	String supplierNumber;
 	String supplierName;
 	String internalNote;
-	float total;
-	float accountingTotal;
+	double total;
+	double accountingTotal;
 	String accountingTotalCurrency;
 	String currency;
 	boolean taxLineTaxation;
-	float headerTax;
-	float totalTax;
+	double headerTax;
+	double totalTax;
 	String taxCode;
 	boolean handlingAccural;
-	float handlingAccrualTax;
+	double handlingAccrualTax;
 	String errorCode;
 	List<JEntry> jEntries = new ArrayList<JEntry>();
 	
@@ -125,17 +125,17 @@ public class Invoice {
 		this.accountingTotalCurrency = accountingTotalCurrency;
 	}
 
-	public float getTotal() {
+	public double getTotal() {
 		return total;
 	}
-	public void setTotal(float total) {
+	public void setTotal(double total) {
 		this.total = total;
 	}
 
-	public float getAccountingTotal() {
+	public double getAccountingTotal() {
 		return accountingTotal;
 	}
-	public void setAccountingTotal(float accountingTotal) {
+	public void setAccountingTotal(double accountingTotal) {
 		this.accountingTotal = accountingTotal;
 	}
 
@@ -160,17 +160,17 @@ public class Invoice {
 		this.taxLineTaxation = taxLineTaxation;
 	}
 	
-	public float getHeaderTax() {
+	public double getHeaderTax() {
 		return headerTax;
 	}
-	public void setHeaderTax(float headerTax) {
+	public void setHeaderTax(double headerTax) {
 		this.headerTax = headerTax;
 	}
 
-	public float getTotalTax() {
+	public double getTotalTax() {
 		return totalTax;
 	}
-	public void setTotalTax(float totalTax) {
+	public void setTotalTax(double totalTax) {
 		this.totalTax = totalTax;
 	}
 	
@@ -189,11 +189,11 @@ public class Invoice {
 		this.handlingAccural = handlingAccural;
 	}
 
-	public float getHandlingAccrualTax() {
+	public double getHandlingAccrualTax() {
 		return handlingAccrualTax;
 	}
 
-	public void setHandlingAccrualTax(float handlingAccrualTax) {
+	public void setHandlingAccrualTax(double handlingAccrualTax) {
 		this.handlingAccrualTax = handlingAccrualTax;
 	}
 

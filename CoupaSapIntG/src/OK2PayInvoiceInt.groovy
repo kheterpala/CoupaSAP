@@ -1,11 +1,12 @@
 import com.eikontx.coupaint.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 class OK2PayInvoiceInt {
 		
 	public static void main(String[] args) {
-		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220630_233255Z.csv";
-		
-		//String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeaderPrepay.csv";
+		//String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220702_011329Z.csv";
+		String filepath = "/Users/kheterpala/Documents/SAP/InvoiceHeader_20220708_202849Z.csv";
 		
 		
 		try {
@@ -18,6 +19,15 @@ class OK2PayInvoiceInt {
 			OK2PayInvoiceInt sc = new OK2PayInvoiceInt();
 			String processedMessage = sc.processData(csvContent);
 			System.out.println(processedMessage);
+			
+			String fileName = f.getName();
+			Pattern fileNamePattern = Pattern.compile("InvoiceHeader_(\\d+)_(\\w+).csv");
+			Matcher fileNameMatcher = fileNamePattern.matcher(fileName);
+			
+			fileNameMatcher.find();
+			System.out.println("File:" + fileName + " Pattern:" + fileNameMatcher.group(2) + "_" + IntUtil.getTodayTS());
+			
+			
 		
 
 		} catch (IOException e) {

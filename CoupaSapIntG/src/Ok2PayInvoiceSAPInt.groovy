@@ -18,6 +18,8 @@ The methods available are:
  import com.sap.gateway.ip.core.customdev.util.Message
 import java.nio.charset.StandardCharsets
 import com.eikontx.coupaint.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 def Message processData(Message message) {
     //Body 
@@ -111,9 +113,20 @@ def Message processData(Message message) {
 		                                                                                                                                                                               
 	};	   
 	
-	messageLog.addAttachmentAsString("Log#3", "Finished processing for $fileName, processed $invoiceCount invoices: $invoiceList", "text/plain");
+	Pattern fileNamePattern = Pattern.compile("InvoiceHeader_(\\d+)_(\\w+).csv");
+	Matcher fileNameMatcher = fileNamePattern.matcher(fileName);
+	
+	fileNameMatcher.find();
+	String newFileName = "COUPAINVOICES_" + fileNameMatcher.group(2) + "_";
+	
+	message.setHeader("CamelFileName", newFileName)
 	message.setBody(buffer.toString());
 	message.setHeader("Process_Number", '17');
+	
+	messageLog.addAttachmentAsString("Log#3", "Finished processing for $fileName, processed $invoiceCount invoices: $invoiceList", "text/plain");
+	
+	
+	
 	
 	return message;
 }

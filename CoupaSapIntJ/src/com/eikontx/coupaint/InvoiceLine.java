@@ -10,11 +10,11 @@ public class InvoiceLine {
 	int invoiceLineId;
 	String description;
 	String po;
-	float price;
-	float quantity;
+	double price;
+	double quantity;
 	Date createdAt;
-	float total;
-	float accountingTotal;
+	double total;
+	double accountingTotal;
 	String category; //goods, services
 	String assetId;
 	String segment1;
@@ -22,10 +22,10 @@ public class InvoiceLine {
 	String segment3;
 	String segment4;
 	String taxCode;
-	float taxAmount;
-	float taxRate;
+	double taxAmount;
+	double taxRate;
 	boolean accrueTax;
-	float accruedTax;
+	double accruedTax;
 	
 	
 	public InvoiceLine(int invoiceId, int invoiceLineId) {
@@ -65,18 +65,18 @@ public class InvoiceLine {
 	}
 
 
-	public float getPrice() {
+	public double getPrice() {
 		return price;
 	}
-	public void setPrice(float price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 
 
-	public float getQuantity() {
+	public double getQuantity() {
 		return quantity;
 	}
-	public void setQuantity(float quantity) {
+	public void setQuantity(double quantity) {
 		this.quantity = quantity;
 	}
 
@@ -89,18 +89,18 @@ public class InvoiceLine {
 	}
 
 
-	public float getTotal() {
+	public double getTotal() {
 		return total;
 	}
-	public void setTotal(float total) {
+	public void setTotal(double total) {
 		this.total = total;
 	}
 
 
-	public float getAccountingTotal() {
+	public double getAccountingTotal() {
 		return accountingTotal;
 	}
-	public void setAccountingTotal(float accountingTotal) {
+	public void setAccountingTotal(double accountingTotal) {
 		this.accountingTotal = accountingTotal;
 	}
 
@@ -135,17 +135,17 @@ public class InvoiceLine {
 	}
 
 	
-	public float getTaxRate() {
+	public double getTaxRate() {
 		return taxRate;
 	}
-	public void setTaxRate(float taxRate) {
+	public void setTaxRate(double taxRate) {
 		this.taxRate = taxRate;
 	}
 
-	public float getTaxAmount() {
+	public double getTaxAmount() {
 		return taxAmount;
 	}
-	public void setTaxAmount(float taxAmount) {
+	public void setTaxAmount(double taxAmount) {
 		this.taxAmount = taxAmount;
 	}
 
@@ -157,11 +157,11 @@ public class InvoiceLine {
 		this.accrueTax = accrueTax;
 	}
 
-	public float getAccruedTax() {
+	public double getAccruedTax() {
 		return accruedTax;
 	}
 
-	public void setAccruedTax(float accruedTax) {
+	public void setAccruedTax(double accruedTax) {
 		this.accruedTax = accruedTax;
 	}
 

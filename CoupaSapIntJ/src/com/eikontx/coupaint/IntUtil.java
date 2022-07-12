@@ -14,7 +14,9 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 
@@ -64,6 +66,14 @@ public class IntUtil {
 		return getDate(postingDate);
 	}
 	
+	public static String getTodayTS() {
+		String dtFormat = getProperty("cpi_dtformat");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dtFormat);
+		
+		LocalDateTime now = LocalDateTime.now();
+		
+		return formatter.format(now);
+	}
 	
 	private static LocalDate getFiscalMonthEnd(LocalDate runDateLocal) {
 		

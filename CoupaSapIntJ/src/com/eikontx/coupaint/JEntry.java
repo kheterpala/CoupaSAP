@@ -9,8 +9,8 @@ public class JEntry {
 	String account;
 	String txType = "";
 	String itemText;
-	float txCurAmt;
-	float localCurAmt;
+	double txCurAmt;
+	double localCurAmt;
 	String taxCode;
 	String taxJurisdiction;
 	String costCenter;
@@ -46,16 +46,16 @@ public class JEntry {
 	public void setItemText(String itemText) {
 		this.itemText = itemText;
 	}
-	public float getTxCurAmt() {
+	public double getTxCurAmt() {
 		return txCurAmt;
 	}
-	public void setTxCurAmt(float txCurAmt) {
+	public void setTxCurAmt(double txCurAmt) {
 		this.txCurAmt = txCurAmt;
 	}
-	public float getLocalCurAmt() {
+	public double getLocalCurAmt() {
 		return localCurAmt;
 	}
-	public void setLocalCurAmt(float localCurAmt) {
+	public void setLocalCurAmt(double localCurAmt) {
 		this.localCurAmt = localCurAmt;
 	}
 	public String getTaxCode() {

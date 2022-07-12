@@ -10,16 +10,16 @@ public class InvoiceCharge {
 	int invoiceChargeId;
 	String description;
 	Date createdAt;
-	float total;
-	float percent;
-	float accountingTotal;
+	double total;
+	double percent;
+	double accountingTotal;
 	String segment1;
 	String segment2;
 	String segment3;
 	String segment4;
 	String taxCode;
-	float taxAmount;
-	float taxRate;
+	double taxAmount;
+	double taxRate;
 
 	
 	public InvoiceCharge(int invoiceId, int invoiceChargeId) {
@@ -65,26 +65,26 @@ public class InvoiceCharge {
 		this.createdAt = createdAt;
 	}
 
-	public float getTotal() {
+	public double getTotal() {
 		return total;
 	}
 
-	public void setTotal(float total) {
+	public void setTotal(double total) {
 		this.total = total;
 	}
 
-	public float getPercent() {
+	public double getPercent() {
 		return percent;
 	}
 
-	public void setPercent(float percent) {
+	public void setPercent(double percent) {
 		this.percent = percent;
 	}
 
-	public float getAccountingTotal() {
+	public double getAccountingTotal() {
 		return accountingTotal;
 	}
-	public void setAccountingTotal(float accountingTotal) {
+	public void setAccountingTotal(double accountingTotal) {
 		this.accountingTotal = accountingTotal;
 	}
 
@@ -128,17 +128,17 @@ public class InvoiceCharge {
 	}
 
 	
-	public float getTaxAmount() {
+	public double getTaxAmount() {
 		return taxAmount;
 	}
-	public void setTaxAmount(float taxAmount) {
+	public void setTaxAmount(double taxAmount) {
 		this.taxAmount = taxAmount;
 	}
 
-	public float getTaxRate() {
+	public double getTaxRate() {
 		return taxRate;
 	}
-	public void setTaxRate(float taxRate) {
+	public void setTaxRate(double taxRate) {
 		this.taxRate = taxRate;
 	}
 
